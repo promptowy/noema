@@ -4,12 +4,16 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type {
   BrowserTab,
+  Bookmark,
   ControlProfile,
+  HistoryEntry,
   ProfileDraft,
   ProfileSessionState,
   ProfileStatus,
   ProfileUpdate,
-  Workspace
+  Workspace,
+  WorkspaceDeleteRequest,
+  WorkspaceUpdate
 } from "./types";
 
 const PROFILE_STORE_VERSION = 1;
@@ -337,7 +341,10 @@ export async function stopProfileSession(id: string): Promise<ControlProfile | n
 
 export async function saveProfileSession(
   id: string,
-  sessionPatch: Pick<ProfileSessionState, "activeTabId" | "lastUrl" | "tabs">
+  sessionPatch: Pick<
+    ProfileSessionState,
+    "activeTabId" | "bookmarks" | "history" | "lastUrl" | "tabs"
+  >
 ): Promise<ControlProfile | null> {
   const profiles = await loadProfiles();
   const workspaces = await loadWorkspaces();
@@ -360,6 +367,8 @@ export async function saveProfileSession(
         ...session,
         tabs,
         activeTabId,
+        bookmarks: sessionPatch.bookmarks.slice(0, 100),
+        history: sessionPatch.history.slice(0, 100),
         lastUrl: sessionPatch.lastUrl || lastUrlFromTabs(tabs, activeTabId)
       }
     };
@@ -406,6 +415,93 @@ export async function createWorkspace(rawLabel: unknown): Promise<Workspace[]> {
   };
   await saveProfileStore(nextStore);
   return nextStore.workspaces;
+}
+
+export async function updateWorkspace(update: WorkspaceUpdate): Promise<{
+  profiles: ControlProfile[];
+  workspaces: Workspace[];
+}> {
+  const id = sanitizeString(update.id, 128);
+  const label = sanitizeString(update.label, MAX_NAME_LENGTH);
+  if (!id || !label) {
+    throw new Error("Invalid workspace update.");
+  }
+
+  const store = await loadProfileStore();
+  const workspace = store.workspaces.find((candidate) => candidate.id === id);
+  if (!workspace) {
+    throw new Error("Workspace not found.");
+  }
+  const duplicate = store.workspaces.some(
+    (candidate) => candidate.id !== id && candidate.label.toLowerCase() === label.toLowerCase()
+  );
+  if (duplicate) {
+    throw new Error("Workspace already exists.");
+  }
+
+  const previousLabel = workspace.label;
+  const nextStore = {
+    ...store,
+    workspaces: store.workspaces.map((candidate) =>
+      candidate.id === id ? { ...candidate, label } : candidate
+    ),
+    profiles: store.profiles.map((profile) =>
+      profile.workspace === previousLabel ? { ...profile, workspace: label } : profile
+    )
+  };
+  await saveProfileStore(nextStore);
+  return {
+    profiles: nextStore.profiles,
+    workspaces: nextStore.workspaces
+  };
+}
+
+export async function deleteWorkspace(request: WorkspaceDeleteRequest): Promise<{
+  profiles: ControlProfile[];
+  workspaces: Workspace[];
+}> {
+  const id = sanitizeString(request.id, 128);
+  if (!id) {
+    throw new Error("Invalid workspace id.");
+  }
+
+  const store = await loadProfileStore();
+  const workspace = store.workspaces.find((candidate) => candidate.id === id);
+  if (!workspace) {
+    throw new Error("Workspace not found.");
+  }
+  if (workspace.label === "Archive") {
+    throw new Error("Archive workspace cannot be deleted.");
+  }
+
+  const hasProfiles = store.profiles.some((profile) => profile.workspace === workspace.label);
+  if (hasProfiles && !request.moveProfilesToArchive) {
+    throw new Error("Workspace contains profiles.");
+  }
+
+  const archiveWorkspace = store.workspaces.find((candidate) => candidate.label === "Archive") ?? {
+    id: "workspace-archive",
+    label: "Archive",
+    tone: "slate",
+    createdAt: formatCreatedDate()
+  };
+  const withoutDeleted = store.workspaces.filter((candidate) => candidate.id !== id);
+  const workspaces = withoutDeleted.some((candidate) => candidate.label === "Archive")
+    ? withoutDeleted
+    : [...withoutDeleted, archiveWorkspace];
+  const profiles = store.profiles.map((profile) =>
+    profile.workspace === workspace.label ? { ...profile, workspace: "Archive" } : profile
+  );
+  const nextStore = {
+    ...store,
+    profiles,
+    workspaces
+  };
+  await saveProfileStore(nextStore);
+  return {
+    profiles: nextStore.profiles,
+    workspaces: nextStore.workspaces
+  };
 }
 
 export function sanitizeProfileDraft(value: unknown): ProfileDraft | null {
@@ -595,6 +691,8 @@ function normalizeProfileSession(
       typeof value.lastUrl === "string"
         ? value.lastUrl
         : lastUrlFromTabs(tabs, activeTabId),
+    bookmarks: Array.isArray(value.bookmarks) ? value.bookmarks.filter(isBookmark).slice(0, 100) : [],
+    history: Array.isArray(value.history) ? value.history.filter(isHistoryEntry).slice(0, 100) : [],
     runtimeMs,
     lastStartedAt: typeof value.lastStartedAt === "string" ? value.lastStartedAt : null
   };
@@ -607,6 +705,8 @@ function createProfileSession(profileId: string, runtimeMs = 0): ProfileSessionS
     tabs: [tab],
     activeTabId: tab.id,
     lastUrl: tab.url,
+    bookmarks: [],
+    history: [],
     runtimeMs,
     lastStartedAt: null
   };
@@ -644,6 +744,32 @@ function isBrowserTab(value: unknown): value is BrowserTab {
     typeof value.isLoading === "boolean" &&
     typeof value.canGoBack === "boolean" &&
     typeof value.canGoForward === "boolean"
+  );
+}
+
+function isBookmark(value: unknown): value is Bookmark {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === "string" &&
+    typeof value.title === "string" &&
+    typeof value.url === "string" &&
+    typeof value.createdAt === "string"
+  );
+}
+
+function isHistoryEntry(value: unknown): value is HistoryEntry {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === "string" &&
+    typeof value.title === "string" &&
+    typeof value.url === "string" &&
+    typeof value.visitedAt === "string"
   );
 }
 

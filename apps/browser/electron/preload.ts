@@ -56,7 +56,17 @@ const api = {
   },
   workspaces: {
     list: () => ipcRenderer.invoke("workspaces:list") as Promise<Workspace[]>,
-    create: (label: string) => ipcRenderer.invoke("workspaces:create", label) as Promise<Workspace[]>
+    create: (label: string) => ipcRenderer.invoke("workspaces:create", label) as Promise<Workspace[]>,
+    update: (patch: { id: string; label: string }) =>
+      ipcRenderer.invoke("workspaces:update", patch) as Promise<{
+        profiles: ControlProfile[];
+        workspaces: Workspace[];
+      }>,
+    delete: (request: { id: string; moveProfilesToArchive: boolean }) =>
+      ipcRenderer.invoke("workspaces:delete", request) as Promise<{
+        profiles: ControlProfile[];
+        workspaces: Workspace[];
+      }>
   },
   window: {
     minimize: () => ipcRenderer.invoke("window:minimize") as Promise<void>,

@@ -11,6 +11,7 @@ import path from "node:path";
 import {
   createProfile,
   createWorkspace,
+  deleteWorkspace,
   deleteProfile,
   getProfileStoreInfo,
   loadProfiles,
@@ -21,7 +22,8 @@ import {
   saveProfileSession,
   startProfileSession,
   stopProfileSession,
-  updateProfile
+  updateProfile,
+  updateWorkspace
 } from "./profileStore";
 import { loadStore, saveStore } from "./store";
 import type {
@@ -365,6 +367,8 @@ function scheduleProfileSessionSave() {
     saveProfileSession(activeProfileId, {
       tabs: current.tabs,
       activeTabId: current.activeTabId,
+      bookmarks: current.bookmarks,
+      history: current.history,
       lastUrl: activeProfileLastUrl()
     }).catch((error) => {
       console.error("Failed to save profile session", error);
@@ -386,6 +390,8 @@ async function flushProfileSessionSave() {
   await saveProfileSession(activeProfileId, {
     tabs: current.tabs,
     activeTabId: current.activeTabId,
+    bookmarks: current.bookmarks,
+    history: current.history,
     lastUrl: activeProfileLastUrl()
   });
 }
@@ -576,6 +582,8 @@ function applyProfileSession(profile: ControlProfile) {
   current.activeTabId = current.tabs.some((tab) => tab.id === profile.session.activeTabId)
     ? profile.session.activeTabId
     : current.tabs[0]?.id ?? "";
+  current.bookmarks = profile.session.bookmarks;
+  current.history = profile.session.history;
 
   for (const tab of current.tabs) {
     if (!isInternalUrl(tab.url)) {
@@ -747,6 +755,24 @@ function registerIpcHandlers() {
   ipcMain.handle("profiles:store-info", () => getProfileStoreInfo());
   ipcMain.handle("workspaces:list", () => loadWorkspaces());
   ipcMain.handle("workspaces:create", (_event, rawLabel: unknown) => createWorkspace(rawLabel));
+  ipcMain.handle("workspaces:update", (_event, rawUpdate: unknown) => {
+    if (!isRecord(rawUpdate)) {
+      throw new Error("Invalid workspace update.");
+    }
+    return updateWorkspace({
+      id: sanitizeString(rawUpdate.id, 128) ?? "",
+      label: sanitizeString(rawUpdate.label, 120) ?? ""
+    });
+  });
+  ipcMain.handle("workspaces:delete", (_event, rawRequest: unknown) => {
+    if (!isRecord(rawRequest)) {
+      throw new Error("Invalid workspace delete request.");
+    }
+    return deleteWorkspace({
+      id: sanitizeString(rawRequest.id, 128) ?? "",
+      moveProfilesToArchive: rawRequest.moveProfilesToArchive === true
+    });
+  });
   ipcMain.handle("profiles:start-session", async (_event, rawId: unknown) => {
     const id = sanitizeString(rawId, 128);
     if (!id) {
@@ -927,6 +953,8 @@ app.on("before-quit", () => {
   saveProfileSession(activeProfileId, {
     tabs: state.tabs,
     activeTabId: state.activeTabId,
+    bookmarks: state.bookmarks,
+    history: state.history,
     lastUrl: activeProfileLastUrl()
   }).catch(console.error);
 });

@@ -1,53 +1,65 @@
 # Noema MVP 1.0 QA Report
 
-## Working Items
+## What Works
 
-- Control Center opens first and loads profiles from the Electron main-process JSON store.
-- Create, edit, delete, duplicate, export and start profile actions are implemented for local profiles.
-- Profile create/edit validates required names and prevents duplicate names for clear row actions.
-- Workspace sidebar filters profiles and shows profile counts.
-- Add workspace creates a persisted local workspace.
-- Search filters profiles by name, workspace, tags, notes and status.
-- Sort works for name, last activity, created and runtime.
-- Refresh reloads profiles/workspaces from the main-process store.
+- Control Center opens first in dev and packaged builds.
+- Profiles load from the Electron main-process JSON store.
+- Profile create, edit, delete, duplicate and export actions work.
+- Profile validation requires a name and prevents duplicate names.
+- Profile workspace, tags, notes and status are editable.
+- Workspaces can be created, edited and deleted.
+- Deleting a workspace with profiles asks to move those profiles to Archive or cancel.
+- Workspace profile counts update from local profile data.
+- Search filters by profile name, workspace, tags, status and notes.
+- Sort works for name, created, last activity and runtime.
 - Filter panel supports status, workspace and tag filters with clear/apply controls.
-- Table selection and select-all visible rows work.
-- Rows per page and pagination work.
-- Profiles, Tags, Statuses, Notes and Activity dashboard segments show useful MVP views.
-- Settings page includes theme, language status, data location, reset demo data and about sections.
-- Dark, light and system theme settings are available and persist through the existing settings store.
-- Start opens the selected profile session with profile name and workspace visible.
-- Profile-scoped tabs and last URL persist per profile.
-- Back to Control Center returns to the dashboard.
-- Browser basics remain available: address/search bar, back, forward, reload, new tab, close tab and tab switching.
-- Bookmarks, history and session settings pages show usable MVP states.
-- Assistant panel actions show clear coming-soon messages and do not pretend to run AI.
+- Table row selection, select-all visible rows, rows per page and pagination work.
+- Profile-scoped browser sessions persist tabs, last active tab and last URL.
+- Starting another profile loads that profile's separate saved tabs.
+- Back to Control Center saves the current profile session state.
+- Bookmarks and history are stored per profile session.
+- Bookmarks and History sidebar pages show usable lists or empty states.
+- Settings show theme, language status, data path, reset demo data and About.
+- Dark, light and system theme settings persist.
+- Assistant panel buttons show the explicit placeholder response: "Assistant actions are coming in the next private build."
+- Packaged app loads the bundled renderer from local files and does not depend on localhost.
 
-## Fixed Items
+## What Was Fixed
 
-- Removed dead/fake Control Center clicks by implementing or marking them as coming soon.
-- Replaced fake workspace add behavior with persisted workspace creation.
-- Made navigation categories either useful MVP pages or explicit coming-soon pages.
-- Made table segments functional or clearly scoped as unavailable for MVP.
-- Made bottom action bar actions work where in scope and mark out-of-scope bulk actions as coming soon.
-- Added selected row count and functional bulk delete confirmation.
-- Added local data path visibility to settings.
-- Added light theme support across major app surfaces.
+- Added main-process workspace update and delete IPC.
+- Added persisted workspace edit/delete behavior in the Control Center.
+- Added profile-session bookmarks and history persistence.
+- Made workspace delete handle profiles by moving them to Archive only after confirmation.
+- Changed assistant actions from generic mock actions to clear MVP placeholder responses.
+- Added an explicit Import coming-soon action while keeping Export functional.
+- Kept proxy, automation and assistant behavior clearly outside MVP scope.
 
-## Intentionally Disabled MVP Placeholders
+## What Remains Placeholder
 
-- Automation is disabled and marked coming soon.
-- Insights is disabled and marked coming soon.
-- Connections/proxy routing is marked coming soon; no real proxy functionality is implemented.
+- Real AI is not implemented.
+- Proxy routing is not implemented.
+- Automation is not implemented.
+- Fingerprint controls are not implemented.
+- Profile import is marked coming soon.
 - Bulk Tag, Move and Pause are marked coming soon.
-- Workspace edit/delete controls are hidden or marked coming soon.
-- Polish language switching is marked coming soon; English remains the MVP language.
-- Assistant actions are placeholders with explicit coming-soon responses.
+- Polish language switching is marked coming soon.
+- Profile isolation is MVP-level Electron session scoping, not hardened enterprise isolation.
 
-## Known Limitations
+## Manual Test Checklist
 
-- The Windows build is unsigned.
-- Profile isolation is scoped to Electron session partitions but is not a hardened enterprise isolation model.
-- No real AI, proxy routing, fingerprint controls or automation are implemented.
-- Export uses the renderer download flow and may depend on the host OS download handling.
-- Light theme is intentionally conservative for MVP readability; future design polish can refine individual surfaces.
+- Open packaged `Noema.exe`; Control Center appears and is not blank.
+- Create a workspace, edit its name, delete it empty.
+- Create a workspace, create a profile inside it, delete the workspace and move the profile to Archive.
+- Create a profile, edit name/workspace/tags/status/notes, then delete it.
+- Duplicate a selected profile and export selected profiles to JSON.
+- Search by name, workspace, tag, status and notes.
+- Apply and clear filters.
+- Sort by name, created, last activity and runtime.
+- Start a profile, open a URL, create/switch/close tabs, go Back to Control Center.
+- Start the same profile again and verify tabs/last URL restore.
+- Start another profile and verify separate tabs load.
+- Bookmark a page, open Bookmarks, and verify it is visible for that profile.
+- Visit a page, open History, and verify it is visible for that profile.
+- Toggle dark/light theme and restart to verify persistence.
+- Open Settings and verify data path, reset demo data and About section.
+- Click assistant actions and verify the placeholder response appears.

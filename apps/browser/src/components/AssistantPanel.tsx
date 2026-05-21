@@ -12,7 +12,8 @@ type AssistantPanelProps = {
 
 export function AssistantPanel({ activeTab, onClose }: AssistantPanelProps) {
   const pageUrl = activeTab && !isInternalUrl(activeTab.url) ? activeTab.url : "No page selected";
-  const [message, setMessage] = useState("Assistant actions are coming soon in Noema MVP.");
+  const assistantPlaceholder = "Assistant actions are coming in the next private build.";
+  const [message, setMessage] = useState(assistantPlaceholder);
 
   return (
     <aside className="flex h-full w-[360px] shrink-0 flex-col border-l border-[#e7c989]/[0.10] bg-[#070604]/[0.86] backdrop-blur-2xl">
@@ -45,22 +46,22 @@ export function AssistantPanel({ activeTab, onClose }: AssistantPanelProps) {
           <AssistantAction
             icon={<FileText size={17} />}
             title="Understand this page"
-            onClick={() => setMessage("Understand this page is coming soon. No page content is sent or processed in this MVP.")}
+            onClick={() => setMessage(assistantPlaceholder)}
           />
           <AssistantAction
             icon={<ListTodo size={17} />}
             title="Summarize the thread"
-            onClick={() => setMessage("Summarize the thread is coming soon. The assistant panel is a safe placeholder today.")}
+            onClick={() => setMessage(assistantPlaceholder)}
           />
           <AssistantAction
             icon={<Sparkles size={17} />}
             title="Extract decisions"
-            onClick={() => setMessage("Extract decisions is coming soon. No AI actions are executed in this build.")}
+            onClick={() => setMessage(assistantPlaceholder)}
           />
           <AssistantAction
             icon={<Zap size={17} />}
             title="Find next steps"
-            onClick={() => setMessage("Find next steps is coming soon. Noema keeps the interface ready without pretending real AI is active.")}
+            onClick={() => setMessage(assistantPlaceholder)}
           />
         </div>
 

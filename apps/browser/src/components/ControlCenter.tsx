@@ -123,7 +123,9 @@ export function ControlCenter({
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ControlProfile | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-  const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
+  const [workspaceModalMode, setWorkspaceModalMode] = useState<"create" | "edit" | null>(null);
+  const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null);
+  const [deleteWorkspaceTarget, setDeleteWorkspaceTarget] = useState<Workspace | null>(null);
   const [workspaceName, setWorkspaceName] = useState("");
   const [form, setForm] = useState<ProfileFormState>(emptyProfileForm());
   const [formError, setFormError] = useState<string | null>(null);
@@ -333,14 +335,67 @@ export function ControlCenter({
     }
 
     try {
-      const nextWorkspaces = await window.browserAPI.workspaces.create(label);
-      setWorkspaces(nextWorkspaces);
+      if (workspaceModalMode === "edit" && editingWorkspace) {
+        const result = await window.browserAPI.workspaces.update({
+          id: editingWorkspace.id,
+          label
+        });
+        setProfiles(result.profiles);
+        setWorkspaces(result.workspaces);
+        if (activeWorkspace === editingWorkspace.label) {
+          setActiveWorkspace(label);
+        }
+        setNotice("Workspace updated.");
+      } else {
+        const nextWorkspaces = await window.browserAPI.workspaces.create(label);
+        setWorkspaces(nextWorkspaces);
+        setActiveWorkspace(label);
+        setNotice("Workspace created.");
+      }
       setActiveWorkspace(label);
       setWorkspaceName("");
-      setWorkspaceModalOpen(false);
-      setNotice("Workspace created.");
+      setWorkspaceModalMode(null);
+      setEditingWorkspace(null);
     } catch {
-      setProfileError("Workspace could not be created. It may already exist.");
+      setProfileError("Workspace could not be saved. It may already exist.");
+    }
+  }
+
+  function openCreateWorkspace() {
+    setWorkspaceName("");
+    setEditingWorkspace(null);
+    setWorkspaceModalMode("create");
+  }
+
+  function openEditWorkspace(workspace: Workspace) {
+    setWorkspaceName(workspace.label);
+    setEditingWorkspace(workspace);
+    setWorkspaceModalMode("edit");
+  }
+
+  async function confirmDeleteWorkspace(moveProfilesToArchive: boolean) {
+    if (!deleteWorkspaceTarget) {
+      return;
+    }
+
+    try {
+      const result = await window.browserAPI.workspaces.delete({
+        id: deleteWorkspaceTarget.id,
+        moveProfilesToArchive
+      });
+      setProfiles(result.profiles);
+      setWorkspaces(result.workspaces);
+      if (activeWorkspace === deleteWorkspaceTarget.label) {
+        setActiveWorkspace(ALL_WORKSPACES);
+      }
+      setDeleteWorkspaceTarget(null);
+      setNotice(
+        moveProfilesToArchive
+          ? "Workspace deleted and profiles moved to Archive."
+          : "Workspace deleted."
+      );
+    } catch {
+      setProfileError("Workspace could not be deleted.");
     }
   }
 
@@ -426,7 +481,7 @@ export function ControlCenter({
         activeWorkspace={activeWorkspace}
         profiles={profiles}
         workspaces={workspaces}
-        onCreateWorkspace={() => setWorkspaceModalOpen(true)}
+        onCreateWorkspace={openCreateWorkspace}
         onWorkspaceChange={(workspace) => {
           setActiveWorkspace(workspace);
           setFilters((current) => ({ ...current, workspace: ALL_WORKSPACES }));
@@ -490,7 +545,9 @@ export function ControlCenter({
               <WorkspacesPage
                 profiles={profiles}
                 workspaces={workspaces}
-                onCreateWorkspace={() => setWorkspaceModalOpen(true)}
+                onCreateWorkspace={openCreateWorkspace}
+                onDeleteWorkspace={setDeleteWorkspaceTarget}
+                onEditWorkspace={openEditWorkspace}
                 onOpenWorkspace={(workspace) => {
                   setActiveWorkspace(workspace);
                   setActiveNav("Profiles");
@@ -554,11 +611,13 @@ export function ControlCenter({
         />
       ) : null}
 
-      {workspaceModalOpen ? (
+      {workspaceModalMode ? (
         <WorkspaceModal
+          mode={workspaceModalMode}
           value={workspaceName}
           onCancel={() => {
-            setWorkspaceModalOpen(false);
+            setWorkspaceModalMode(null);
+            setEditingWorkspace(null);
             setWorkspaceName("");
           }}
           onChange={setWorkspaceName}
@@ -591,6 +650,17 @@ export function ControlCenter({
           label={`${selectedProfiles.length} selected profile${selectedProfiles.length === 1 ? "" : "s"}`}
           onCancel={() => setBulkDeleteOpen(false)}
           onConfirm={confirmBulkDelete}
+        />
+      ) : null}
+
+      {deleteWorkspaceTarget ? (
+        <WorkspaceDeleteConfirmation
+          profileCount={
+            profiles.filter((profile) => profile.workspace === deleteWorkspaceTarget.label).length
+          }
+          workspace={deleteWorkspaceTarget}
+          onCancel={() => setDeleteWorkspaceTarget(null)}
+          onConfirm={confirmDeleteWorkspace}
         />
       ) : null}
     </div>
@@ -726,7 +796,7 @@ function WorkspaceSidebar({
       <div className="mt-auto rounded-[18px] border border-[#e7c989]/[0.10] bg-black/[0.16] p-3">
         <div className="text-xs font-semibold uppercase text-[#e7c989]">MVP scope</div>
         <p className="mt-2 text-xs leading-5 text-[#f4ecdc]/[0.45]">
-          Workspace edit and delete controls are hidden until they are real.
+          Workspaces, local profiles and profile sessions persist on this device.
         </p>
       </div>
     </aside>
@@ -1205,6 +1275,7 @@ function BottomActionBar({
         <DisabledAction icon={<MoveRight size={15} />} label="Move" onClick={() => onComingSoon("Bulk move")} />
         <ActionButton icon={<Copy size={15} />} label="Duplicate" onClick={onDuplicate} />
         <ActionButton icon={<Download size={15} />} label="Export" onClick={onExport} />
+        <DisabledAction icon={<Download className="rotate-180" size={15} />} label="Import" onClick={() => onComingSoon("Profile import")} />
         <ActionButton icon={<Play size={15} />} label="Start" onClick={onStart} />
         <DisabledAction icon={<Pause size={15} />} label="Pause" onClick={() => onComingSoon("Bulk pause")} />
         <ActionButton disabled={selectedCount === 0} icon={<Trash2 size={15} />} label="Delete" onClick={onBulkDelete} />
@@ -1378,11 +1449,15 @@ function FilterPanel({
 
 function WorkspacesPage({
   onCreateWorkspace,
+  onDeleteWorkspace,
+  onEditWorkspace,
   onOpenWorkspace,
   profiles,
   workspaces
 }: {
   onCreateWorkspace: () => void;
+  onDeleteWorkspace: (workspace: Workspace) => void;
+  onEditWorkspace: (workspace: Workspace) => void;
   onOpenWorkspace: (workspace: string) => void;
   profiles: ControlProfile[];
   workspaces: Workspace[];
@@ -1400,21 +1475,34 @@ function WorkspacesPage({
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {workspaces.map((workspace) => (
-          <button
+          <article
             key={workspace.id}
-            className="rounded-[20px] border border-[#e7c989]/[0.10] bg-[#15120d]/[0.58] p-5 text-left transition hover:border-[#e7c989]/[0.24] hover:bg-[#f4ecdc]/[0.045]"
-            type="button"
-            onClick={() => onOpenWorkspace(workspace.label)}
+            className="rounded-[20px] border border-[#e7c989]/[0.10] bg-[#15120d]/[0.58] p-5 transition hover:border-[#e7c989]/[0.24] hover:bg-[#f4ecdc]/[0.045]"
           >
             <span className={`mb-5 block h-3 w-10 rounded-full ${workspaceToneClass(workspace.tone)}`} />
             <span className="block text-lg font-semibold text-[#f4ecdc]">{workspace.label}</span>
             <span className="mt-2 block text-sm text-[#f4ecdc]/[0.46]">
               {profiles.filter((profile) => profile.workspace === workspace.label).length} profiles
             </span>
-            <span className="mt-5 inline-flex rounded-full border border-[#e7c989]/[0.12] px-2.5 py-1 text-xs text-[#f4ecdc]/[0.42]">
-              Edit/delete coming soon
-            </span>
-          </button>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Button className="h-8 border-[#e7c989]/[0.16] px-3 text-xs text-[#f4ecdc]/[0.70]" tone="ghost" onClick={() => onOpenWorkspace(workspace.label)}>
+                Open
+              </Button>
+              <Button className="h-8 border-[#e7c989]/[0.16] px-3 text-xs text-[#f4ecdc]/[0.70]" tone="ghost" onClick={() => onEditWorkspace(workspace)}>
+                <Pencil size={13} />
+                Edit
+              </Button>
+              <Button
+                className="h-8 border-[#6b332b]/[0.24] px-3 text-xs text-[#ffe8df]/[0.82]"
+                disabled={workspace.label === "Archive"}
+                tone="danger"
+                onClick={() => onDeleteWorkspace(workspace)}
+              >
+                <Trash2 size={13} />
+                Delete
+              </Button>
+            </div>
+          </article>
         ))}
       </div>
     </div>
@@ -1776,11 +1864,13 @@ function ProfileModal({
 }
 
 function WorkspaceModal({
+  mode,
   onCancel,
   onChange,
   onSubmit,
   value
 }: {
+  mode: "create" | "edit";
   onCancel: () => void;
   onChange: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
@@ -1792,7 +1882,9 @@ function WorkspaceModal({
         className="w-full max-w-md rounded-[24px] border border-[#e7c989]/[0.16] bg-[#0f0c08] p-5 shadow-[0_34px_120px_rgba(0,0,0,0.62)]"
         onSubmit={onSubmit}
       >
-        <h2 className="text-xl font-semibold text-[#f4ecdc]">Add workspace</h2>
+        <h2 className="text-xl font-semibold text-[#f4ecdc]">
+          {mode === "edit" ? "Edit workspace" : "Add workspace"}
+        </h2>
         <p className="mt-2 text-sm text-[#f4ecdc]/[0.52]">
           Workspaces are local project filters for Noema profiles.
         </p>
@@ -1810,7 +1902,7 @@ function WorkspaceModal({
             Cancel
           </Button>
           <Button className="border-[#e7c989]/[0.50] bg-[#e7c989] text-[#120f0a]" disabled={!value.trim()} tone="primary" type="submit">
-            Create workspace
+            {mode === "edit" ? "Save workspace" : "Create workspace"}
           </Button>
         </div>
       </form>
@@ -1847,6 +1939,48 @@ function DeleteConfirmation({
           </Button>
           <Button className="border-[#6b332b]/[0.30] bg-[#6b332b]/[0.24] text-[#ffe8df] hover:bg-[#6b332b]/[0.34]" tone="danger" onClick={onConfirm}>
             Delete profile
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WorkspaceDeleteConfirmation({
+  onCancel,
+  onConfirm,
+  profileCount,
+  workspace
+}: {
+  onCancel: () => void;
+  onConfirm: (moveProfilesToArchive: boolean) => void;
+  profileCount: number;
+  workspace: Workspace;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/[0.62] p-4 backdrop-blur-md">
+      <div className="w-full max-w-md rounded-[24px] border border-[#e7c989]/[0.16] bg-[#0f0c08] p-5 shadow-[0_34px_120px_rgba(0,0,0,0.62)]">
+        <div className="flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#6b332b]/[0.28] bg-[#6b332b]/[0.18] text-[#ffe8df]">
+            <Trash2 size={18} />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-[#f4ecdc]">
+              Delete {workspace.label}?
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#f4ecdc]/[0.52]">
+              {profileCount > 0
+                ? `${profileCount} profile${profileCount === 1 ? "" : "s"} will be moved to Archive.`
+                : "This workspace has no profiles and can be deleted safely."}
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 flex justify-end gap-2">
+          <Button className="border-[#e7c989]/[0.12] text-[#f4ecdc]/[0.66] hover:bg-[#f4ecdc]/[0.06]" tone="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button className="border-[#6b332b]/[0.30] bg-[#6b332b]/[0.24] text-[#ffe8df] hover:bg-[#6b332b]/[0.34]" tone="danger" onClick={() => onConfirm(profileCount > 0)}>
+            {profileCount > 0 ? "Move to Archive" : "Delete workspace"}
           </Button>
         </div>
       </div>

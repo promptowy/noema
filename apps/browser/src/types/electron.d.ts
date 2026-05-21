@@ -36,6 +36,14 @@ type BrowserApi = {
   workspaces: {
     list: () => Promise<Workspace[]>;
     create: (label: string) => Promise<Workspace[]>;
+    update: (patch: { id: string; label: string }) => Promise<{
+      profiles: ControlProfile[];
+      workspaces: Workspace[];
+    }>;
+    delete: (request: { id: string; moveProfilesToArchive: boolean }) => Promise<{
+      profiles: ControlProfile[];
+      workspaces: Workspace[];
+    }>;
   };
   window: {
     minimize: () => Promise<void>;

@@ -65,11 +65,23 @@ export type Workspace = {
   createdAt: string;
 };
 
+export type WorkspaceUpdate = {
+  id: string;
+  label: string;
+};
+
+export type WorkspaceDeleteRequest = {
+  id: string;
+  moveProfilesToArchive: boolean;
+};
+
 export type ProfileSessionState = {
   partition: string;
   tabs: BrowserTab[];
   activeTabId: string;
   lastUrl: string;
+  bookmarks: Bookmark[];
+  history: HistoryEntry[];
   runtimeMs: number;
   lastStartedAt: string | null;
 };
