@@ -2,13 +2,22 @@ import { app } from "electron";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { ControlProfile, ProfileDraft, ProfileStatus, ProfileUpdate } from "./types";
+import type {
+  BrowserTab,
+  ControlProfile,
+  ProfileDraft,
+  ProfileSessionState,
+  ProfileStatus,
+  ProfileUpdate
+} from "./types";
 
 const PROFILE_STORE_VERSION = 1;
 const PROFILE_STORE_FILE = "noema-profiles.json";
 const MAX_TEXT_LENGTH = 2000;
 const MAX_NAME_LENGTH = 120;
 const MAX_TAGS = 12;
+const MINUTE_MS = 60_000;
+const HOUR_MS = 60 * MINUTE_MS;
 
 type PersistedProfileStore = {
   version: 1;
@@ -26,7 +35,8 @@ const demoProfiles: ControlProfile[] = [
     notes: "Compare sources before synthesis.",
     lastActivity: "12 min ago",
     created: "May 18",
-    runtime: "1h 24m"
+    runtime: "1h 24m",
+    session: createProfileSession("research-alpha", 84 * MINUTE_MS)
   },
   {
     id: "market-desk",
@@ -38,7 +48,8 @@ const demoProfiles: ControlProfile[] = [
     notes: "Track product and pricing shifts.",
     lastActivity: "Active now",
     created: "May 17",
-    runtime: "42m"
+    runtime: "42m",
+    session: createProfileSession("market-desk", 42 * MINUTE_MS)
   },
   {
     id: "content-studio",
@@ -50,7 +61,8 @@ const demoProfiles: ControlProfile[] = [
     notes: "Gather references for launch copy.",
     lastActivity: "1h ago",
     created: "May 16",
-    runtime: "2h 08m"
+    runtime: "2h 08m",
+    session: createProfileSession("content-studio", 128 * MINUTE_MS)
   },
   {
     id: "client-review",
@@ -62,7 +74,8 @@ const demoProfiles: ControlProfile[] = [
     notes: "Keep findings concise and cited.",
     lastActivity: "3h ago",
     created: "May 15",
-    runtime: "58m"
+    runtime: "58m",
+    session: createProfileSession("client-review", 58 * MINUTE_MS)
   },
   {
     id: "launch-notes",
@@ -74,7 +87,8 @@ const demoProfiles: ControlProfile[] = [
     notes: "Return after messaging review.",
     lastActivity: "Yesterday",
     created: "May 13",
-    runtime: "19m"
+    runtime: "19m",
+    session: createProfileSession("launch-notes", 19 * MINUTE_MS)
   },
   {
     id: "trend-watch",
@@ -86,7 +100,8 @@ const demoProfiles: ControlProfile[] = [
     notes: "Look for durable patterns.",
     lastActivity: "Yesterday",
     created: "May 12",
-    runtime: "1h 01m"
+    runtime: "1h 01m",
+    session: createProfileSession("trend-watch", 61 * MINUTE_MS)
   },
   {
     id: "design-lab",
@@ -98,7 +113,8 @@ const demoProfiles: ControlProfile[] = [
     notes: "Save only high-signal references.",
     lastActivity: "May 19",
     created: "May 10",
-    runtime: "3h 12m"
+    runtime: "3h 12m",
+    session: createProfileSession("design-lab", 192 * MINUTE_MS)
   },
   {
     id: "archive-session",
@@ -110,7 +126,8 @@ const demoProfiles: ControlProfile[] = [
     notes: "Dormant context, kept locally.",
     lastActivity: "May 14",
     created: "May 08",
-    runtime: "11m"
+    runtime: "11m",
+    session: createProfileSession("archive-session", 11 * MINUTE_MS)
   }
 ];
 
@@ -174,8 +191,9 @@ export async function loadProfiles(): Promise<ControlProfile[]> {
 
 export async function createProfile(draft: ProfileDraft): Promise<ControlProfile[]> {
   const profiles = await loadProfiles();
+  const id = randomUUID();
   const profile: ControlProfile = {
-    id: randomUUID(),
+    id,
     name: draft.name,
     workspace: draft.workspace,
     status: draft.status,
@@ -184,7 +202,8 @@ export async function createProfile(draft: ProfileDraft): Promise<ControlProfile
     notes: draft.notes,
     lastActivity: "Just now",
     created: formatCreatedDate(),
-    runtime: "0m"
+    runtime: "0m",
+    session: createProfileSession(id)
   };
   const nextProfiles = [profile, ...profiles];
   await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
@@ -212,6 +231,111 @@ export async function deleteProfile(id: string): Promise<ControlProfile[]> {
   const nextProfiles = profiles.filter((profile) => profile.id !== id);
   await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
   return nextProfiles;
+}
+
+export async function startProfileSession(id: string): Promise<ControlProfile | null> {
+  const profiles = await loadProfiles();
+  let startedProfile: ControlProfile | null = null;
+  const now = new Date().toISOString();
+  const nextProfiles = profiles.map((profile) => {
+    if (profile.id !== id) {
+      return profile;
+    }
+
+    const session = normalizeProfileSession(profile.id, profile.session, profile.runtime);
+    const tabs = ensureTabs(session.tabs);
+    const nextProfile: ControlProfile = {
+      ...profile,
+      status: "Running",
+      lastActivity: "Active now",
+      runtime: formatRuntime(session.runtimeMs),
+      session: {
+        ...session,
+        tabs,
+        activeTabId: tabs.some((tab) => tab.id === session.activeTabId)
+          ? session.activeTabId
+          : tabs[0]?.id ?? "",
+        lastUrl: lastUrlFromTabs(tabs, session.activeTabId),
+        lastStartedAt: now
+      }
+    };
+    startedProfile = nextProfile;
+    return nextProfile;
+  });
+
+  if (startedProfile) {
+    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+  }
+
+  return startedProfile;
+}
+
+export async function stopProfileSession(id: string): Promise<ControlProfile | null> {
+  const profiles = await loadProfiles();
+  let stoppedProfile: ControlProfile | null = null;
+  const nextProfiles = profiles.map((profile) => {
+    if (profile.id !== id) {
+      return profile;
+    }
+
+    const session = withElapsedRuntime(profile.session);
+    const nextProfile: ControlProfile = {
+      ...profile,
+      status: "Paused",
+      lastActivity: "Just now",
+      runtime: formatRuntime(session.runtimeMs),
+      session: {
+        ...session,
+        lastStartedAt: null
+      }
+    };
+    stoppedProfile = nextProfile;
+    return nextProfile;
+  });
+
+  if (stoppedProfile) {
+    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+  }
+
+  return stoppedProfile;
+}
+
+export async function saveProfileSession(
+  id: string,
+  sessionPatch: Pick<ProfileSessionState, "activeTabId" | "lastUrl" | "tabs">
+): Promise<ControlProfile | null> {
+  const profiles = await loadProfiles();
+  let savedProfile: ControlProfile | null = null;
+  const nextProfiles = profiles.map((profile) => {
+    if (profile.id !== id) {
+      return profile;
+    }
+
+    const session = normalizeProfileSession(profile.id, profile.session, profile.runtime);
+    const tabs = ensureTabs(sessionPatch.tabs);
+    const activeTabId = tabs.some((tab) => tab.id === sessionPatch.activeTabId)
+      ? sessionPatch.activeTabId
+      : tabs[0]?.id ?? "";
+    const nextProfile: ControlProfile = {
+      ...profile,
+      lastActivity: profile.status === "Running" ? "Active now" : profile.lastActivity,
+      runtime: formatRuntime(withElapsedRuntime(session).runtimeMs),
+      session: {
+        ...session,
+        tabs,
+        activeTabId,
+        lastUrl: sessionPatch.lastUrl || lastUrlFromTabs(tabs, activeTabId)
+      }
+    };
+    savedProfile = nextProfile;
+    return nextProfile;
+  });
+
+  if (savedProfile) {
+    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+  }
+
+  return savedProfile;
 }
 
 export async function resetDemoProfiles(): Promise<ControlProfile[]> {
@@ -293,7 +417,7 @@ export function sanitizeProfileUpdate(value: unknown): ProfileUpdate | null {
 
 function normalizeProfileStore(store: Partial<PersistedProfileStore>): PersistedProfileStore {
   const profiles = Array.isArray(store.profiles)
-    ? store.profiles.filter(isControlProfile)
+    ? store.profiles.filter(isControlProfileLike).map(normalizeControlProfile)
     : defaultProfileStore().profiles;
   return {
     version: PROFILE_STORE_VERSION,
@@ -301,7 +425,9 @@ function normalizeProfileStore(store: Partial<PersistedProfileStore>): Persisted
   };
 }
 
-function isControlProfile(value: unknown): value is ControlProfile {
+function isControlProfileLike(value: unknown): value is Omit<ControlProfile, "session"> & {
+  session?: unknown;
+} {
   if (!isRecord(value)) {
     return false;
   }
@@ -319,6 +445,139 @@ function isControlProfile(value: unknown): value is ControlProfile {
     typeof value.created === "string" &&
     typeof value.runtime === "string"
   );
+}
+
+function normalizeControlProfile(
+  profile: Omit<ControlProfile, "session"> & { session?: unknown }
+): ControlProfile {
+  return {
+    ...profile,
+    runtime: formatRuntime(parseRuntime(profile.runtime)),
+    session: normalizeProfileSession(profile.id, profile.session, profile.runtime)
+  };
+}
+
+function normalizeProfileSession(
+  profileId: string,
+  value: unknown,
+  runtime = "0m"
+): ProfileSessionState {
+  if (!isRecord(value)) {
+    return createProfileSession(profileId, parseRuntime(runtime));
+  }
+
+  const tabs = Array.isArray(value.tabs) ? value.tabs.filter(isBrowserTab) : [newTab()];
+  const activeTabId =
+    typeof value.activeTabId === "string" && tabs.some((tab) => tab.id === value.activeTabId)
+      ? value.activeTabId
+      : tabs[0]?.id ?? "";
+  const runtimeMs =
+    typeof value.runtimeMs === "number" && Number.isFinite(value.runtimeMs)
+      ? Math.max(0, value.runtimeMs)
+      : parseRuntime(runtime);
+
+  return {
+    partition:
+      typeof value.partition === "string" && value.partition.startsWith("persist:")
+        ? value.partition
+        : profilePartition(profileId),
+    tabs: ensureTabs(tabs),
+    activeTabId,
+    lastUrl:
+      typeof value.lastUrl === "string"
+        ? value.lastUrl
+        : lastUrlFromTabs(tabs, activeTabId),
+    runtimeMs,
+    lastStartedAt: typeof value.lastStartedAt === "string" ? value.lastStartedAt : null
+  };
+}
+
+function createProfileSession(profileId: string, runtimeMs = 0): ProfileSessionState {
+  const tab = newTab();
+  return {
+    partition: profilePartition(profileId),
+    tabs: [tab],
+    activeTabId: tab.id,
+    lastUrl: tab.url,
+    runtimeMs,
+    lastStartedAt: null
+  };
+}
+
+function profilePartition(profileId: string) {
+  const safeId = profileId.replace(/[^a-z0-9_-]/gi, "-");
+  return `persist:noema-profile-${safeId}`;
+}
+
+function newTab(): BrowserTab {
+  return {
+    id: randomUUID(),
+    title: "New Tab",
+    url: "browser://newtab",
+    isLoading: false,
+    canGoBack: false,
+    canGoForward: false
+  };
+}
+
+function ensureTabs(tabs: BrowserTab[]) {
+  return tabs.length > 0 ? tabs : [newTab()];
+}
+
+function isBrowserTab(value: unknown): value is BrowserTab {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === "string" &&
+    typeof value.title === "string" &&
+    typeof value.url === "string" &&
+    typeof value.isLoading === "boolean" &&
+    typeof value.canGoBack === "boolean" &&
+    typeof value.canGoForward === "boolean"
+  );
+}
+
+function lastUrlFromTabs(tabs: BrowserTab[], activeTabId: string) {
+  const activeTab = tabs.find((tab) => tab.id === activeTabId) ?? tabs[0];
+  return activeTab?.url ?? "browser://newtab";
+}
+
+function withElapsedRuntime(session: ProfileSessionState): ProfileSessionState {
+  if (!session.lastStartedAt) {
+    return session;
+  }
+
+  const startedAt = Date.parse(session.lastStartedAt);
+  if (!Number.isFinite(startedAt)) {
+    return {
+      ...session,
+      lastStartedAt: null
+    };
+  }
+
+  return {
+    ...session,
+    runtimeMs: session.runtimeMs + Math.max(0, Date.now() - startedAt),
+    lastStartedAt: new Date().toISOString()
+  };
+}
+
+function parseRuntime(runtime: string) {
+  const hours = /(\d+)\s*h/.exec(runtime)?.[1];
+  const minutes = /(\d+)\s*m/.exec(runtime)?.[1];
+  return (hours ? Number(hours) * HOUR_MS : 0) + (minutes ? Number(minutes) * MINUTE_MS : 0);
+}
+
+function formatRuntime(runtimeMs: number) {
+  const totalMinutes = Math.max(0, Math.floor(runtimeMs / MINUTE_MS));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+  return `${hours}h ${String(minutes).padStart(2, "0")}m`;
 }
 
 function isProfileStatus(value: unknown): value is ProfileStatus {

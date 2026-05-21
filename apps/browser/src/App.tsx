@@ -103,22 +103,25 @@ export default function App() {
     window.browserAPI.navigate({ input });
   }
 
-  function openSession(profile: ControlProfile) {
-    setSelectedProfile(profile);
+  async function openSession(profile: ControlProfile) {
+    const session = await window.browserAPI.profiles.startSession(profile.id);
+    setSelectedProfile(session.profile);
+    setState(session.state);
     setAppMode("session");
     setViewMode("browser");
   }
 
-  function returnToControlCenter() {
-    setAppMode("control");
+  async function returnToControlCenter() {
     window.browserAPI.setContentBounds(hiddenBounds);
+    await window.browserAPI.profiles.endSession();
+    setAppMode("control");
   }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_28%_-10%,rgba(231,201,137,0.13),transparent_34%),linear-gradient(135deg,#050403_0%,#0b0907_46%,#050504_100%)] text-[#f4ecdc]">
       <TitleBar />
       {appMode === "control" ? (
-        <ControlCenter onStartProfile={openSession} />
+        <ControlCenter onStartProfile={(profile) => void openSession(profile)} />
       ) : (
         <div className="flex min-h-0 flex-1">
         <Sidebar

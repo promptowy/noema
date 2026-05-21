@@ -15,6 +15,9 @@ import {
   resetDemoProfiles,
   sanitizeProfileDraft,
   sanitizeProfileUpdate,
+  saveProfileSession,
+  startProfileSession,
+  stopProfileSession,
   updateProfile
 } from "./profileStore";
 import { loadStore, saveStore } from "./store";
@@ -22,6 +25,7 @@ import type {
   AppState,
   BrowserBounds,
   BrowserTab,
+  ControlProfile,
   NavigatePayload,
   PersistedStore,
   SettingsPatch
@@ -32,7 +36,10 @@ let state: AppState | null = null;
 let activeView: WebContentsView | null = null;
 let contentBounds: BrowserBounds = { x: 0, y: 0, width: 0, height: 0 };
 let saveTimer: NodeJS.Timeout | null = null;
+let profileSaveTimer: NodeJS.Timeout | null = null;
 let startupLogPath: string | null = null;
+let activeProfileId: string | null = null;
+let activeProfilePartition: string | null = null;
 
 const webViews = new Map<string, WebContentsView>();
 
@@ -311,8 +318,15 @@ function persistableState(): PersistedStore {
   const current = assertState();
   return {
     version: 1,
-    ...current
+    ...current,
+    activeTabId: activeProfileId ? "" : current.activeTabId,
+    tabs: activeProfileId ? [] : current.tabs
   };
+}
+
+function activeProfileLastUrl() {
+  const tab = activeTab();
+  return tab?.url ?? "browser://newtab";
 }
 
 function scheduleSave() {
@@ -327,10 +341,54 @@ function scheduleSave() {
   }, 250);
 }
 
+function scheduleProfileSessionSave() {
+  if (!activeProfileId) {
+    return;
+  }
+
+  if (profileSaveTimer) {
+    clearTimeout(profileSaveTimer);
+  }
+
+  profileSaveTimer = setTimeout(() => {
+    const current = assertState();
+    if (!activeProfileId) {
+      return;
+    }
+
+    saveProfileSession(activeProfileId, {
+      tabs: current.tabs,
+      activeTabId: current.activeTabId,
+      lastUrl: activeProfileLastUrl()
+    }).catch((error) => {
+      console.error("Failed to save profile session", error);
+    });
+  }, 250);
+}
+
+async function flushProfileSessionSave() {
+  if (profileSaveTimer) {
+    clearTimeout(profileSaveTimer);
+    profileSaveTimer = null;
+  }
+
+  if (!activeProfileId) {
+    return;
+  }
+
+  const current = assertState();
+  await saveProfileSession(activeProfileId, {
+    tabs: current.tabs,
+    activeTabId: current.activeTabId,
+    lastUrl: activeProfileLastUrl()
+  });
+}
+
 function broadcastState() {
   const current = assertState();
   mainWindow?.webContents.send("browser:state", current);
   scheduleSave();
+  scheduleProfileSessionSave();
 }
 
 function detachActiveView() {
@@ -376,7 +434,8 @@ function ensureWebView(tab: BrowserTab) {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      webSecurity: true
+      webSecurity: true,
+      ...(activeProfilePartition ? { partition: activeProfilePartition } : {})
     }
   });
 
@@ -477,12 +536,47 @@ function destroyWebView(tabId: string) {
   webViews.delete(tabId);
 }
 
+function destroyAllWebViews() {
+  detachActiveView();
+  for (const view of webViews.values()) {
+    view.webContents.close();
+  }
+  webViews.clear();
+}
+
 function setActiveTab(tabId: string) {
   const current = assertState();
   if (!current.tabs.some((tab) => tab.id === tabId)) {
     return;
   }
   current.activeTabId = tabId;
+  attachActiveView();
+  broadcastState();
+}
+
+function applyProfileSession(profile: ControlProfile) {
+  const current = assertState();
+  destroyAllWebViews();
+  activeProfileId = profile.id;
+  activeProfilePartition = profile.session.partition;
+
+  const tabs = profile.session.tabs.length > 0 ? profile.session.tabs : [createBlankTab()];
+  current.tabs = tabs.map((tab) => ({
+    ...tab,
+    isLoading: false,
+    canGoBack: false,
+    canGoForward: false
+  }));
+  current.activeTabId = current.tabs.some((tab) => tab.id === profile.session.activeTabId)
+    ? profile.session.activeTabId
+    : current.tabs[0]?.id ?? "";
+
+  for (const tab of current.tabs) {
+    if (!isInternalUrl(tab.url)) {
+      ensureWebView(tab);
+    }
+  }
+
   attachActiveView();
   broadcastState();
 }
@@ -644,6 +738,34 @@ async function createWindow() {
 function registerIpcHandlers() {
   ipcMain.handle("browser:get-state", () => assertState());
   ipcMain.handle("profiles:list", () => loadProfiles());
+  ipcMain.handle("profiles:start-session", async (_event, rawId: unknown) => {
+    const id = sanitizeString(rawId, 128);
+    if (!id) {
+      throw new Error("Invalid profile id.");
+    }
+
+    await flushProfileSessionSave();
+    const profile = await startProfileSession(id);
+    if (!profile) {
+      throw new Error("Profile not found.");
+    }
+    applyProfileSession(profile);
+    return {
+      profile,
+      state: assertState()
+    };
+  });
+  ipcMain.handle("profiles:end-session", async () => {
+    await flushProfileSessionSave();
+    const endingProfileId = activeProfileId;
+    if (endingProfileId) {
+      await stopProfileSession(endingProfileId);
+    }
+    activeProfileId = null;
+    activeProfilePartition = null;
+    detachActiveView();
+    return loadProfiles();
+  });
   ipcMain.handle("profiles:create", (_event, rawDraft: unknown) => {
     const draft = sanitizeProfileDraft(rawDraft);
     if (!draft) {
@@ -658,12 +780,25 @@ function registerIpcHandlers() {
     }
     return updateProfile(update);
   });
-  ipcMain.handle("profiles:delete", (_event, rawId: unknown) => {
+  ipcMain.handle("profiles:delete", async (_event, rawId: unknown) => {
     const id = sanitizeString(rawId, 128);
     if (!id) {
       throw new Error("Invalid profile id.");
     }
-    return deleteProfile(id);
+    const profiles = await loadProfiles();
+    const profile = profiles.find((candidate) => candidate.id === id);
+    const nextProfiles = await deleteProfile(id);
+    if (profile) {
+      session.fromPartition(profile.session.partition).clearStorageData().catch((error) => {
+        console.error("Failed to clear deleted profile session data", error);
+      });
+    }
+    if (activeProfileId === id) {
+      activeProfileId = null;
+      activeProfilePartition = null;
+      destroyAllWebViews();
+    }
+    return nextProfiles;
   });
   ipcMain.handle("profiles:resetDemoData", () => resetDemoProfiles());
   ipcMain.handle("browser:set-bounds", (_event, rawBounds: unknown) => {
@@ -771,6 +906,20 @@ registerIpcHandlers();
 app.whenReady().then(createWindow).catch((error) => {
   console.error(error);
   app.quit();
+});
+
+app.on("before-quit", () => {
+  if (profileSaveTimer) {
+    clearTimeout(profileSaveTimer);
+  }
+  if (!activeProfileId || !state) {
+    return;
+  }
+  saveProfileSession(activeProfileId, {
+    tabs: state.tabs,
+    activeTabId: state.activeTabId,
+    lastUrl: activeProfileLastUrl()
+  }).catch(console.error);
 });
 
 app.on("activate", () => {

@@ -4,6 +4,7 @@ import type {
   ControlProfile,
   NavigatePayload,
   ProfileDraft,
+  ProfileSessionResult,
   ProfileUpdate,
   SettingsPatch
 } from "../../electron/types";
@@ -23,6 +24,8 @@ type BrowserApi = {
   updateSettings: (patch: SettingsPatch) => Promise<void>;
   profiles: {
     list: () => Promise<ControlProfile[]>;
+    startSession: (id: string) => Promise<ProfileSessionResult>;
+    endSession: () => Promise<ControlProfile[]>;
     create: (draft: ProfileDraft) => Promise<ControlProfile[]>;
     update: (patch: ProfileUpdate) => Promise<ControlProfile[]>;
     delete: (id: string) => Promise<ControlProfile[]>;

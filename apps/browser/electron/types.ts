@@ -57,6 +57,15 @@ export type ProfileStatus = "Ready" | "Review" | "Paused" | "Running";
 
 export type ProfileProxy = "None" | "Residential" | "Workspace" | "Pending";
 
+export type ProfileSessionState = {
+  partition: string;
+  tabs: BrowserTab[];
+  activeTabId: string;
+  lastUrl: string;
+  runtimeMs: number;
+  lastStartedAt: string | null;
+};
+
 export type ControlProfile = {
   id: string;
   name: string;
@@ -68,6 +77,7 @@ export type ControlProfile = {
   lastActivity: string;
   created: string;
   runtime: string;
+  session: ProfileSessionState;
 };
 
 export type ProfileDraft = {
@@ -80,4 +90,9 @@ export type ProfileDraft = {
 
 export type ProfileUpdate = Partial<ProfileDraft> & {
   id: string;
+};
+
+export type ProfileSessionResult = {
+  profile: ControlProfile;
+  state: AppState;
 };

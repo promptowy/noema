@@ -5,6 +5,7 @@ import type {
   ControlProfile,
   NavigatePayload,
   ProfileDraft,
+  ProfileSessionResult,
   ProfileUpdate,
   SettingsPatch
 } from "./types";
@@ -37,6 +38,10 @@ const api = {
     ipcRenderer.invoke("browser:update-settings", patch) as Promise<void>,
   profiles: {
     list: () => ipcRenderer.invoke("profiles:list") as Promise<ControlProfile[]>,
+    startSession: (id: string) =>
+      ipcRenderer.invoke("profiles:start-session", id) as Promise<ProfileSessionResult>,
+    endSession: () =>
+      ipcRenderer.invoke("profiles:end-session") as Promise<ControlProfile[]>,
     create: (draft: ProfileDraft) =>
       ipcRenderer.invoke("profiles:create", draft) as Promise<ControlProfile[]>,
     update: (patch: ProfileUpdate) =>
