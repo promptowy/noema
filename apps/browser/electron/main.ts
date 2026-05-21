@@ -6,6 +6,7 @@ import {
   WebContentsView
 } from "electron";
 import { randomUUID } from "node:crypto";
+import { appendFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import {
   createProfile,
@@ -31,13 +32,108 @@ let state: AppState | null = null;
 let activeView: WebContentsView | null = null;
 let contentBounds: BrowserBounds = { x: 0, y: 0, width: 0, height: 0 };
 let saveTimer: NodeJS.Timeout | null = null;
+let startupLogPath: string | null = null;
 
 const webViews = new Map<string, WebContentsView>();
 
 const isDevelopment = Boolean(process.env.VITE_DEV_SERVER_URL);
 const preloadPath = path.join(__dirname, "../preload/preload.cjs");
+const rendererIndexPath = path.resolve(__dirname, "../../dist/renderer/index.html");
 const MAX_ADDRESS_INPUT_LENGTH = 4096;
 const MAX_VIEW_EDGE = 10000;
+
+function initializeStartupLogging() {
+  if (!app.isPackaged) {
+    return;
+  }
+
+  const logDirectory = app.getPath("userData");
+  mkdirSync(logDirectory, { recursive: true });
+  startupLogPath = path.join(logDirectory, "noema-startup.log");
+  logStartup("Packaged startup initialized", {
+    appPath: app.getAppPath(),
+    resourcesPath: process.resourcesPath,
+    rendererIndexPath,
+    preloadPath
+  });
+}
+
+function logStartup(message: string, details?: Record<string, unknown>) {
+  const line = `[${new Date().toISOString()}] ${message}${
+    details ? ` ${JSON.stringify(details)}` : ""
+  }\n`;
+
+  console.info(line.trim());
+
+  if (!startupLogPath) {
+    return;
+  }
+
+  try {
+    appendFileSync(startupLogPath, line, "utf8");
+  } catch (error) {
+    console.error("Failed to write Noema startup log", error);
+  }
+}
+
+function startupErrorHtml(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  const escapedPath = escapeHtml(rendererIndexPath);
+  const escapedMessage = escapeHtml(message);
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Noema startup error</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #050403;
+        color: #f4ecdc;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      main {
+        max-width: 720px;
+        border: 1px solid rgba(231, 201, 137, 0.2);
+        border-radius: 24px;
+        background: rgba(21, 18, 13, 0.86);
+        padding: 32px;
+        box-shadow: 0 28px 100px rgba(0, 0, 0, 0.5);
+      }
+      h1 { margin: 0 0 12px; font-size: 24px; }
+      p { color: rgba(244, 236, 220, 0.68); line-height: 1.6; }
+      code {
+        display: block;
+        margin-top: 12px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #e7c989;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Noema could not load its interface.</h1>
+      <p>The packaged renderer failed to load. This is a startup issue, not a missing internet connection.</p>
+      <code>Renderer path: ${escapedPath}</code>
+      <code>Error: ${escapedMessage}</code>
+    </main>
+  </body>
+</html>`;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
 
 function assertState(): AppState {
   if (!state) {
@@ -473,6 +569,7 @@ function closeTab(tabId: string) {
 }
 
 async function createWindow() {
+  initializeStartupLogging();
   state = await loadStore();
   if (state.tabs.length === 0) {
     const tab = createBlankTab();
@@ -516,9 +613,28 @@ async function createWindow() {
   }
 
   if (isDevelopment && process.env.VITE_DEV_SERVER_URL) {
+    logStartup("Loading development renderer", {
+      url: process.env.VITE_DEV_SERVER_URL
+    });
     await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    await mainWindow.loadFile(path.join(__dirname, "../../dist/renderer/index.html"));
+    logStartup("Loading packaged renderer", {
+      rendererIndexPath,
+      exists: existsSync(rendererIndexPath)
+    });
+
+    try {
+      await mainWindow.loadFile(rendererIndexPath);
+      logStartup("Packaged renderer loaded");
+    } catch (error) {
+      logStartup("Packaged renderer failed to load", {
+        rendererIndexPath,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      await mainWindow.loadURL(
+        `data:text/html;charset=utf-8,${encodeURIComponent(startupErrorHtml(error))}`
+      );
+    }
   }
 
   attachActiveView();
