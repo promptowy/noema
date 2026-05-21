@@ -1,4 +1,5 @@
 import { Bot, FileText, ListTodo, PanelRight, Sparkles, X, Zap } from "lucide-react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { Button, IconButton } from "@browser/ui";
 import type { BrowserTab } from "../../electron/types";
@@ -11,6 +12,7 @@ type AssistantPanelProps = {
 
 export function AssistantPanel({ activeTab, onClose }: AssistantPanelProps) {
   const pageUrl = activeTab && !isInternalUrl(activeTab.url) ? activeTab.url : "No page selected";
+  const [message, setMessage] = useState("Assistant actions are coming soon in Noema MVP.");
 
   return (
     <aside className="flex h-full w-[360px] shrink-0 flex-col border-l border-[#e7c989]/[0.10] bg-[#070604]/[0.86] backdrop-blur-2xl">
@@ -40,18 +42,32 @@ export function AssistantPanel({ activeTab, onClose }: AssistantPanelProps) {
         </div>
 
         <div className="mt-4 grid gap-3">
-          <AssistantAction icon={<FileText size={17} />} title="Understand this page" />
-          <AssistantAction icon={<ListTodo size={17} />} title="Summarize the thread" />
-          <AssistantAction icon={<Sparkles size={17} />} title="Extract decisions" />
-          <AssistantAction icon={<Zap size={17} />} title="Find next steps" />
+          <AssistantAction
+            icon={<FileText size={17} />}
+            title="Understand this page"
+            onClick={() => setMessage("Understand this page is coming soon. No page content is sent or processed in this MVP.")}
+          />
+          <AssistantAction
+            icon={<ListTodo size={17} />}
+            title="Summarize the thread"
+            onClick={() => setMessage("Summarize the thread is coming soon. The assistant panel is a safe placeholder today.")}
+          />
+          <AssistantAction
+            icon={<Sparkles size={17} />}
+            title="Extract decisions"
+            onClick={() => setMessage("Extract decisions is coming soon. No AI actions are executed in this build.")}
+          />
+          <AssistantAction
+            icon={<Zap size={17} />}
+            title="Find next steps"
+            onClick={() => setMessage("Find next steps is coming soon. Noema keeps the interface ready without pretending real AI is active.")}
+          />
         </div>
 
         <div className="mt-5 rounded-[22px] border border-[#e7c989]/[0.16] bg-[linear-gradient(145deg,rgba(231,201,137,0.10),rgba(244,236,220,0.035)_48%,rgba(0,0,0,0.12))] p-4">
           <Sparkles className="mb-4 text-[#e7c989]" size={20} />
           <p className="text-sm leading-6 text-[#f4ecdc]/[0.64]">
-            Noema will stay beside the page as a quiet place to understand, compare and continue
-            the thread. This build keeps the assistant interface ready while the intelligence layer
-            remains mocked.
+            {message}
           </p>
         </div>
       </div>
@@ -59,14 +75,26 @@ export function AssistantPanel({ activeTab, onClose }: AssistantPanelProps) {
   );
 }
 
-function AssistantAction({ icon, title }: { icon: ReactNode; title: string }) {
+function AssistantAction({
+  icon,
+  onClick,
+  title
+}: {
+  icon: ReactNode;
+  onClick: () => void;
+  title: string;
+}) {
   return (
     <Button
       className="h-12 justify-start rounded-2xl border-[#e7c989]/[0.12] bg-[#f4ecdc]/[0.045] text-[#f4ecdc]/[0.74] hover:border-[#e7c989]/[0.22] hover:bg-[#f4ecdc]/[0.075] hover:text-[#f4ecdc]"
       tone="secondary"
+      onClick={onClick}
     >
       <span className="text-[#e7c989]">{icon}</span>
       {title}
+      <span className="ml-auto rounded-full border border-[#e7c989]/[0.12] px-2 py-0.5 text-[10px] text-[#f4ecdc]/[0.42]">
+        Soon
+      </span>
     </Button>
   );
 }

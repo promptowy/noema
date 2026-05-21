@@ -7,7 +7,8 @@ import type {
   ProfileDraft,
   ProfileSessionResult,
   ProfileUpdate,
-  SettingsPatch
+  SettingsPatch,
+  Workspace
 } from "./types";
 
 const api = {
@@ -49,7 +50,13 @@ const api = {
     delete: (id: string) =>
       ipcRenderer.invoke("profiles:delete", id) as Promise<ControlProfile[]>,
     resetDemoData: () =>
-      ipcRenderer.invoke("profiles:resetDemoData") as Promise<ControlProfile[]>
+      ipcRenderer.invoke("profiles:resetDemoData") as Promise<ControlProfile[]>,
+    storeInfo: () =>
+      ipcRenderer.invoke("profiles:store-info") as Promise<{ path: string }>
+  },
+  workspaces: {
+    list: () => ipcRenderer.invoke("workspaces:list") as Promise<Workspace[]>,
+    create: (label: string) => ipcRenderer.invoke("workspaces:create", label) as Promise<Workspace[]>
   },
   window: {
     minimize: () => ipcRenderer.invoke("window:minimize") as Promise<void>,

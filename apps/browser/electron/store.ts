@@ -10,6 +10,7 @@ const STORE_FILE = "browser-store.json";
 const defaultSettings: BrowserSettings = {
   searchEngine: "google",
   theme: "dark",
+  language: "en",
   privacyMode: false
 };
 

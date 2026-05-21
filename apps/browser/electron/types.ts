@@ -30,7 +30,8 @@ export type HistoryEntry = {
 
 export type BrowserSettings = {
   searchEngine: "google";
-  theme: "dark" | "system";
+  theme: "dark" | "light" | "system";
+  language: "en";
   privacyMode: boolean;
 };
 
@@ -56,6 +57,13 @@ export type SettingsPatch = Partial<BrowserSettings>;
 export type ProfileStatus = "Ready" | "Review" | "Paused" | "Running";
 
 export type ProfileProxy = "None" | "Residential" | "Workspace" | "Pending";
+
+export type Workspace = {
+  id: string;
+  label: string;
+  tone: string;
+  createdAt: string;
+};
 
 export type ProfileSessionState = {
   partition: string;

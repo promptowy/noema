@@ -27,6 +27,50 @@ body {
     sans-serif;
 }
 
+[data-theme="light"] {
+  color: #20170f;
+  background: #f3eadc;
+}
+
+[data-theme="light"] :is(header, aside, main, section, div, form, nav, table, thead, tbody, tr, td, th, footer) {
+  color: inherit;
+  border-color: rgba(92, 69, 35, 0.18);
+}
+
+[data-theme="light"] :is(header, aside, main, section, form, nav) {
+  background: rgba(246, 240, 228, 0.88);
+}
+
+[data-theme="light"] :is(div, article) {
+  border-color: rgba(92, 69, 35, 0.16);
+}
+
+[data-theme="light"] :is(input, textarea, select) {
+  background: rgba(255, 252, 246, 0.86);
+  color: #20170f;
+  border-color: rgba(92, 69, 35, 0.18);
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: rgba(32, 23, 15, 0.42);
+}
+
+[data-theme="light"] button {
+  color: inherit;
+}
+
+[data-theme="light"] .field-input {
+  background: rgba(255, 252, 246, 0.88);
+  color: #20170f;
+  border-color: rgba(92, 69, 35, 0.18);
+}
+
+[data-theme="light"] .field-input:focus {
+  background: #fffaf0;
+  border-color: rgba(153, 112, 44, 0.48);
+}
+
 button,
 input,
 select {

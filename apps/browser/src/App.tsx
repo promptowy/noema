@@ -117,11 +117,35 @@ export default function App() {
     setAppMode("control");
   }
 
+  async function resetDemoData() {
+    const nextProfiles = await window.browserAPI.profiles.resetDemoData();
+    if (selectedProfile && !nextProfiles.some((profile) => profile.id === selectedProfile.id)) {
+      setSelectedProfile(null);
+    }
+  }
+
+  const resolvedTheme =
+    state.settings.theme === "system"
+      ? window.matchMedia("(prefers-color-scheme: light)").matches
+        ? "light"
+        : "dark"
+      : state.settings.theme;
+
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_28%_-10%,rgba(231,201,137,0.13),transparent_34%),linear-gradient(135deg,#050403_0%,#0b0907_46%,#050504_100%)] text-[#f4ecdc]">
+    <div
+      className={`flex h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_28%_-10%,rgba(231,201,137,0.13),transparent_34%),linear-gradient(135deg,#050403_0%,#0b0907_46%,#050504_100%)] text-[#f4ecdc] ${
+        resolvedTheme === "light" ? "theme-light" : "theme-dark"
+      }`}
+      data-theme={resolvedTheme}
+    >
       <TitleBar />
       {appMode === "control" ? (
-        <ControlCenter onStartProfile={(profile) => void openSession(profile)} />
+        <ControlCenter
+          settings={state.settings}
+          onResetDemoData={resetDemoData}
+          onSettingsChange={window.browserAPI.updateSettings}
+          onStartProfile={(profile) => void openSession(profile)}
+        />
       ) : (
         <div className="flex min-h-0 flex-1">
         <Sidebar

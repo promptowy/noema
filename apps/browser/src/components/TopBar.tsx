@@ -127,7 +127,12 @@ export function TopBar({
         >
           <Star fill={isBookmarked ? "currentColor" : "none"} size={17} />
         </IconButton>
-        <Button className="h-8 border-[#e7c989]/[0.10] px-3 text-xs text-[#f4ecdc]/[0.58] hover:bg-[#f4ecdc]/[0.08] hover:text-[#f4ecdc]" tone="ghost">
+        <Button
+          className="h-8 border-[#e7c989]/[0.10] px-3 text-xs text-[#f4ecdc]/[0.58]"
+          disabled
+          title="Remote web content runs without Node.js integration."
+          tone="ghost"
+        >
           <Shield size={15} />
           Secure
         </Button>

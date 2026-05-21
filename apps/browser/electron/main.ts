@@ -10,8 +10,11 @@ import { appendFileSync, existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import {
   createProfile,
+  createWorkspace,
   deleteProfile,
+  getProfileStoreInfo,
   loadProfiles,
+  loadWorkspaces,
   resetDemoProfiles,
   sanitizeProfileDraft,
   sanitizeProfileUpdate,
@@ -211,8 +214,11 @@ function sanitizeSettingsPatch(value: unknown): SettingsPatch {
   if (value.searchEngine === "google") {
     patch.searchEngine = "google";
   }
-  if (value.theme === "dark" || value.theme === "system") {
+  if (value.theme === "dark" || value.theme === "light" || value.theme === "system") {
     patch.theme = value.theme;
+  }
+  if (value.language === "en") {
+    patch.language = value.language;
   }
   if (typeof value.privacyMode === "boolean") {
     patch.privacyMode = value.privacyMode;
@@ -738,6 +744,9 @@ async function createWindow() {
 function registerIpcHandlers() {
   ipcMain.handle("browser:get-state", () => assertState());
   ipcMain.handle("profiles:list", () => loadProfiles());
+  ipcMain.handle("profiles:store-info", () => getProfileStoreInfo());
+  ipcMain.handle("workspaces:list", () => loadWorkspaces());
+  ipcMain.handle("workspaces:create", (_event, rawLabel: unknown) => createWorkspace(rawLabel));
   ipcMain.handle("profiles:start-session", async (_event, rawId: unknown) => {
     const id = sanitizeString(rawId, 128);
     if (!id) {

@@ -104,16 +104,17 @@ export function SettingsPage({ state, onSettingsChange }: LibraryProps) {
           </select>
         </SettingCard>
 
-        <SettingCard description="The MVP ships with a premium dark theme." label="Theme">
+        <SettingCard description="The MVP supports dark, light and system theme settings." label="Theme">
           <select
             className="mt-4 h-10 w-full rounded-lg border border-[#e7c989]/[0.12] bg-[#15120d] px-3 text-sm text-[#f4ecdc] outline-none transition focus:border-[#e7c989]/[0.36]"
             value={state.settings.theme}
             onChange={(event) =>
-              onSettingsChange({ theme: event.currentTarget.value as "dark" | "system" })
+              onSettingsChange({ theme: event.currentTarget.value as AppState["settings"]["theme"] })
             }
           >
             <option value="dark">Dark</option>
-            <option value="system">System placeholder</option>
+            <option value="light">Light</option>
+            <option value="system">System</option>
           </select>
         </SettingCard>
 
@@ -130,7 +131,7 @@ export function SettingsPage({ state, onSettingsChange }: LibraryProps) {
             type="button"
             onClick={() => onSettingsChange({ privacyMode: !state.settings.privacyMode })}
           >
-            <span>Strict mode placeholder</span>
+            <span>Strict privacy note</span>
             <Shield size={15} />
           </button>
         </SettingCard>

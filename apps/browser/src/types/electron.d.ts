@@ -6,7 +6,8 @@ import type {
   ProfileDraft,
   ProfileSessionResult,
   ProfileUpdate,
-  SettingsPatch
+  SettingsPatch,
+  Workspace
 } from "../../electron/types";
 
 type BrowserApi = {
@@ -30,6 +31,11 @@ type BrowserApi = {
     update: (patch: ProfileUpdate) => Promise<ControlProfile[]>;
     delete: (id: string) => Promise<ControlProfile[]>;
     resetDemoData: () => Promise<ControlProfile[]>;
+    storeInfo: () => Promise<{ path: string }>;
+  };
+  workspaces: {
+    list: () => Promise<Workspace[]>;
+    create: (label: string) => Promise<Workspace[]>;
   };
   window: {
     minimize: () => Promise<void>;

@@ -8,7 +8,8 @@ import type {
   ProfileDraft,
   ProfileSessionState,
   ProfileStatus,
-  ProfileUpdate
+  ProfileUpdate,
+  Workspace
 } from "./types";
 
 const PROFILE_STORE_VERSION = 1;
@@ -22,6 +23,11 @@ const HOUR_MS = 60 * MINUTE_MS;
 type PersistedProfileStore = {
   version: 1;
   profiles: ControlProfile[];
+  workspaces: Workspace[];
+};
+
+export type ProfileStoreInfo = {
+  path: string;
 };
 
 const demoProfiles: ControlProfile[] = [
@@ -131,6 +137,15 @@ const demoProfiles: ControlProfile[] = [
   }
 ];
 
+const demoWorkspaces: Workspace[] = [
+  { id: "workspace-research", label: "Research", tone: "gold", createdAt: "May 01" },
+  { id: "workspace-clients", label: "Clients", tone: "sand", createdAt: "May 01" },
+  { id: "workspace-content", label: "Content", tone: "amber", createdAt: "May 01" },
+  { id: "workspace-market-watch", label: "Market Watch", tone: "olive", createdAt: "May 01" },
+  { id: "workspace-social", label: "Social", tone: "clay", createdAt: "May 01" },
+  { id: "workspace-archive", label: "Archive", tone: "slate", createdAt: "May 01" }
+];
+
 function profileStorePath() {
   return path.join(app.getPath("userData"), PROFILE_STORE_FILE);
 }
@@ -138,7 +153,8 @@ function profileStorePath() {
 function defaultProfileStore(): PersistedProfileStore {
   return {
     version: PROFILE_STORE_VERSION,
-    profiles: demoProfiles
+    profiles: demoProfiles,
+    workspaces: demoWorkspaces
   };
 }
 
@@ -159,21 +175,35 @@ async function backupMalformedStore(raw: string) {
 }
 
 export async function loadProfiles(): Promise<ControlProfile[]> {
+  return (await loadProfileStore()).profiles;
+}
+
+export async function loadWorkspaces(): Promise<Workspace[]> {
+  return (await loadProfileStore()).workspaces;
+}
+
+export function getProfileStoreInfo(): ProfileStoreInfo {
+  return {
+    path: profileStorePath()
+  };
+}
+
+async function loadProfileStore(): Promise<PersistedProfileStore> {
   const target = profileStorePath();
 
   try {
     const raw = await readFile(target, "utf8");
     const parsed = JSON.parse(raw) as Partial<PersistedProfileStore>;
     const normalized = normalizeProfileStore(parsed);
-    if (!Array.isArray(parsed.profiles)) {
+    if (!Array.isArray(parsed.profiles) || !Array.isArray(parsed.workspaces)) {
       await saveProfileStore(normalized);
     }
-    return normalized.profiles;
+    return normalized;
   } catch (error) {
     if (isMissingFileError(error)) {
       const fallback = defaultProfileStore();
       await saveProfileStore(fallback);
-      return fallback.profiles;
+      return fallback;
     }
 
     try {
@@ -185,12 +215,13 @@ export async function loadProfiles(): Promise<ControlProfile[]> {
 
     const fallback = defaultProfileStore();
     await saveProfileStore(fallback);
-    return fallback.profiles;
+    return fallback;
   }
 }
 
 export async function createProfile(draft: ProfileDraft): Promise<ControlProfile[]> {
   const profiles = await loadProfiles();
+  const workspaces = await loadWorkspaces();
   const id = randomUUID();
   const profile: ControlProfile = {
     id,
@@ -206,12 +237,13 @@ export async function createProfile(draft: ProfileDraft): Promise<ControlProfile
     session: createProfileSession(id)
   };
   const nextProfiles = [profile, ...profiles];
-  await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+  await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles, workspaces });
   return nextProfiles;
 }
 
 export async function updateProfile(update: ProfileUpdate): Promise<ControlProfile[]> {
   const profiles = await loadProfiles();
+  const workspaces = await loadWorkspaces();
   const nextProfiles = profiles.map((profile) =>
     profile.id === update.id
       ? {
@@ -222,19 +254,21 @@ export async function updateProfile(update: ProfileUpdate): Promise<ControlProfi
         }
       : profile
   );
-  await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+  await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles, workspaces });
   return nextProfiles;
 }
 
 export async function deleteProfile(id: string): Promise<ControlProfile[]> {
   const profiles = await loadProfiles();
+  const workspaces = await loadWorkspaces();
   const nextProfiles = profiles.filter((profile) => profile.id !== id);
-  await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+  await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles, workspaces });
   return nextProfiles;
 }
 
 export async function startProfileSession(id: string): Promise<ControlProfile | null> {
   const profiles = await loadProfiles();
+  const workspaces = await loadWorkspaces();
   let startedProfile: ControlProfile | null = null;
   const now = new Date().toISOString();
   const nextProfiles = profiles.map((profile) => {
@@ -264,7 +298,7 @@ export async function startProfileSession(id: string): Promise<ControlProfile | 
   });
 
   if (startedProfile) {
-    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles, workspaces });
   }
 
   return startedProfile;
@@ -272,6 +306,7 @@ export async function startProfileSession(id: string): Promise<ControlProfile | 
 
 export async function stopProfileSession(id: string): Promise<ControlProfile | null> {
   const profiles = await loadProfiles();
+  const workspaces = await loadWorkspaces();
   let stoppedProfile: ControlProfile | null = null;
   const nextProfiles = profiles.map((profile) => {
     if (profile.id !== id) {
@@ -294,7 +329,7 @@ export async function stopProfileSession(id: string): Promise<ControlProfile | n
   });
 
   if (stoppedProfile) {
-    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles, workspaces });
   }
 
   return stoppedProfile;
@@ -305,6 +340,7 @@ export async function saveProfileSession(
   sessionPatch: Pick<ProfileSessionState, "activeTabId" | "lastUrl" | "tabs">
 ): Promise<ControlProfile | null> {
   const profiles = await loadProfiles();
+  const workspaces = await loadWorkspaces();
   let savedProfile: ControlProfile | null = null;
   const nextProfiles = profiles.map((profile) => {
     if (profile.id !== id) {
@@ -332,7 +368,7 @@ export async function saveProfileSession(
   });
 
   if (savedProfile) {
-    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles });
+    await saveProfileStore({ version: PROFILE_STORE_VERSION, profiles: nextProfiles, workspaces });
   }
 
   return savedProfile;
@@ -342,6 +378,34 @@ export async function resetDemoProfiles(): Promise<ControlProfile[]> {
   const fallback = defaultProfileStore();
   await saveProfileStore(fallback);
   return fallback.profiles;
+}
+
+export async function createWorkspace(rawLabel: unknown): Promise<Workspace[]> {
+  const label = sanitizeString(rawLabel, MAX_NAME_LENGTH);
+  if (!label) {
+    throw new Error("Invalid workspace name.");
+  }
+
+  const store = await loadProfileStore();
+  const exists = store.workspaces.some(
+    (workspace) => workspace.label.toLowerCase() === label.toLowerCase()
+  );
+  if (exists) {
+    throw new Error("Workspace already exists.");
+  }
+
+  const workspace: Workspace = {
+    id: randomUUID(),
+    label,
+    tone: workspaceTone(store.workspaces.length),
+    createdAt: formatCreatedDate()
+  };
+  const nextStore = {
+    ...store,
+    workspaces: [...store.workspaces, workspace]
+  };
+  await saveProfileStore(nextStore);
+  return nextStore.workspaces;
 }
 
 export function sanitizeProfileDraft(value: unknown): ProfileDraft | null {
@@ -419,9 +483,53 @@ function normalizeProfileStore(store: Partial<PersistedProfileStore>): Persisted
   const profiles = Array.isArray(store.profiles)
     ? store.profiles.filter(isControlProfileLike).map(normalizeControlProfile)
     : defaultProfileStore().profiles;
+  const workspaces = Array.isArray(store.workspaces)
+    ? mergeWorkspaceDefaults(store.workspaces.filter(isWorkspaceLike).map(normalizeWorkspace), profiles)
+    : mergeWorkspaceDefaults(defaultProfileStore().workspaces, profiles);
   return {
     version: PROFILE_STORE_VERSION,
-    profiles
+    profiles,
+    workspaces
+  };
+}
+
+function mergeWorkspaceDefaults(workspaces: Workspace[], profiles: ControlProfile[]) {
+  const byLabel = new Map<string, Workspace>();
+  for (const workspace of [...demoWorkspaces, ...workspaces]) {
+    byLabel.set(workspace.label.toLowerCase(), workspace);
+  }
+  for (const profile of profiles) {
+    if (!byLabel.has(profile.workspace.toLowerCase())) {
+      byLabel.set(profile.workspace.toLowerCase(), {
+        id: randomUUID(),
+        label: profile.workspace,
+        tone: workspaceTone(byLabel.size),
+        createdAt: formatCreatedDate()
+      });
+    }
+  }
+  return Array.from(byLabel.values());
+}
+
+function isWorkspaceLike(value: unknown): value is Workspace {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.id === "string" &&
+    typeof value.label === "string" &&
+    typeof value.tone === "string" &&
+    typeof value.createdAt === "string"
+  );
+}
+
+function normalizeWorkspace(workspace: Workspace): Workspace {
+  return {
+    id: workspace.id,
+    label: workspace.label,
+    tone: workspace.tone,
+    createdAt: workspace.createdAt
   };
 }
 
@@ -626,4 +734,9 @@ function formatCreatedDate() {
     month: "short",
     day: "numeric"
   }).format(new Date());
+}
+
+function workspaceTone(index: number) {
+  const tones = ["gold", "sand", "amber", "olive", "clay", "slate", "mint", "rose"];
+  return tones[index % tones.length] ?? "gold";
 }
