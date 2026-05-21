@@ -34,7 +34,7 @@ const productCards = [
   {
     icon: SquareStack,
     title: "Profiles for focused contexts",
-    copy: "Create separate browser contexts for a client review, market scan, research sprint or content workflow."
+    copy: "Create separate local profiles for a client review, market scan, research sprint or content workflow."
   },
   {
     icon: Folder,
@@ -43,8 +43,8 @@ const productCards = [
   },
   {
     icon: NotebookText,
-    title: "Notes beside sessions",
-    copy: "Keep the reason for a session visible, so you can return without reconstructing the work from memory."
+    title: "Notes and tags beside sessions",
+    copy: "Keep the reason for a profile visible, then return with the right note, tags and workspace already attached."
   },
   {
     icon: Play,
@@ -54,7 +54,7 @@ const productCards = [
   {
     icon: ShieldCheck,
     title: "Local-first MVP data",
-    copy: "Profiles are stored locally by the desktop app. The MVP does not require an account or hosted backend."
+    copy: "Profiles, workspaces and session metadata are stored locally by the desktop app. No account is required."
   },
   {
     icon: PanelRight,
@@ -64,22 +64,31 @@ const productCards = [
 ];
 
 const worksToday = [
-  "Create, edit and delete profiles",
-  "Store profiles locally",
-  "Open profile-scoped browser sessions",
-  "Keep tabs per profile",
-  "Search and filter profiles",
-  "Use a context side panel",
-  "Run the Windows MVP build"
+  "Local profiles with notes, tags and status",
+  "Workspace create, edit, delete and filters",
+  "Profile-scoped browser sessions",
+  "Saved tabs and last URL per profile",
+  "Per-profile bookmarks and history",
+  "Dark and light theme settings",
+  "Packaged Windows MVP build"
+];
+
+const limitations = [
+  "Unsigned Windows build",
+  "Assistant actions are placeholders",
+  "No real AI integration yet",
+  "No proxy routing",
+  "No automation",
+  "MVP-level profile isolation"
 ];
 
 const roadmap = [
-  "Stronger session isolation",
-  "Saved session history",
+  "Stronger profile/session isolation",
   "Real assistant integration",
-  "Import/export",
-  "Signed installer",
-  "Hosted landing and updates"
+  "Signed Windows installer",
+  "Profile import",
+  "Hosted updates",
+  "Deeper session history"
 ];
 
 const walkthrough = [
@@ -117,7 +126,7 @@ const faqs = [
   {
     question: "Does Noema have real AI yet?",
     answer:
-      "No. The assistant panel is a placeholder for future AI behavior. It does not summarize pages, run automation or process your browsing today."
+      "No. The assistant panel is a placeholder for future AI behavior. The current action buttons show a coming-soon response."
   },
   {
     question: "Are profiles isolated?",
@@ -137,7 +146,7 @@ const faqs = [
   {
     question: "What comes next?",
     answer:
-      "The next priorities are stronger session isolation, saved session history, a real assistant integration, import/export and a signed installer."
+      "The next priorities are stronger session isolation, a real assistant integration, profile import, hosted updates and a signed installer."
   }
 ];
 
@@ -186,6 +195,7 @@ export default function Home() {
       <Hero />
       <WhatItIs />
       <Status />
+      <Limitations />
       <Roadmap />
       <Walkthrough />
       <Comparison />
@@ -235,8 +245,8 @@ function Hero() {
             Run focused browser sessions from one clean control center.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-[#d8cbb3]/[0.72] sm:text-lg">
-            Noema helps you organize browser profiles, workspaces, notes and research sessions
-            without drowning in tabs.
+            Organize profiles, workspaces, notes, bookmarks and research sessions without drowning
+            in tabs.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <PrimaryLink href="#download">
@@ -249,9 +259,9 @@ function Hero() {
             </SecondaryLink>
           </div>
           <div className="mt-8 grid max-w-xl grid-cols-3 gap-2">
-            <Metric value="Local" label="profile storage" />
-            <Metric value="Scoped" label="session state" />
-            <Metric value="Unsigned" label="Windows MVP" />
+            <Metric value="Local" label="profiles and workspaces" />
+            <Metric value="Saved" label="tabs and bookmarks" />
+            <Metric value="MVP" label="unsigned Windows build" />
           </div>
         </div>
         <ControlCenterMockup />
@@ -303,7 +313,7 @@ function ControlCenterMockup() {
             </div>
 
             <div className="mb-4 flex flex-wrap gap-2">
-              {["Profiles", "Proxies", "Tags", "Statuses", "Notes", "Activity"].map((segment) => (
+              {["Profiles", "Connections", "Tags", "Statuses", "Notes", "Activity"].map((segment) => (
                 <span
                   className={`rounded-full border px-3 py-1.5 text-[11px] ${
                     segment === "Profiles"
@@ -313,6 +323,7 @@ function ControlCenterMockup() {
                   key={segment}
                 >
                   {segment}
+                  {segment === "Connections" ? <span className="ml-1 text-[#d8cbb3]/[0.36]">Soon</span> : null}
                 </span>
               ))}
             </div>
@@ -503,6 +514,27 @@ function Status() {
   );
 }
 
+function Limitations() {
+  return (
+    <section className="border-b border-[#ead7ad]/[0.08] px-4 py-16 sm:px-6 lg:py-20">
+      <div className="mx-auto grid max-w-[1400px] gap-8 lg:grid-cols-[0.72fr_1.28fr]">
+        <SectionHeader
+          eyebrow="Honest limitations"
+          title="Still an MVP, clearly marked."
+          copy="Noema is useful as a local workspace manager today, but the release keeps unfinished systems visible as coming soon instead of pretending they work."
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          {limitations.map((item) => (
+            <StatusItem icon={X} key={item} tone="limit">
+              {item}
+            </StatusItem>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Roadmap() {
   return (
     <section className="border-b border-[#ead7ad]/[0.08] px-4 py-20 sm:px-6 lg:py-24" id="roadmap">
@@ -595,7 +627,8 @@ function Download() {
               Try the Noema Windows MVP.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-[#d8cbb3]/[0.70]">
-              This is an early unsigned Windows build. Unzip the folder and run Noema.exe.
+              This is an early unsigned Windows build. Unzip the package, open the extracted
+              folder and run Noema.exe.
             </p>
             <p className="mt-4 max-w-2xl rounded-2xl border border-[#d8b56d]/[0.18] bg-[#070604]/[0.56] p-4 text-sm leading-6 text-[#fff2d2]/[0.80]">
               Do not move Noema.exe out of its folder. The app needs the bundled files beside it.
@@ -603,7 +636,7 @@ function Download() {
           </div>
           <div className="rounded-2xl border border-[#ead7ad]/[0.12] bg-[#070604]/[0.72] p-4">
             <div className="grid gap-3 sm:grid-cols-2">
-              <PrimaryLink href="#download">
+              <PrimaryLink href="#setup-notes">
                 Download Windows MVP
                 <MonitorDown size={16} />
               </PrimaryLink>
@@ -615,7 +648,8 @@ function Download() {
             <div className="mt-5 grid gap-3 text-sm text-[#d8cbb3]/[0.60]" id="setup-notes">
               <SetupNote label="1" text="Unzip Noema-Windows-MVP.zip." />
               <SetupNote label="2" text="Open the extracted folder." />
-              <SetupNote label="3" text="Run Noema.exe from inside that folder." />
+              <SetupNote label="3" text="Double-click Noema.exe from inside that folder." />
+              <SetupNote label="4" text="If Windows warns you, choose More info, then Run anyway." />
             </div>
           </div>
         </div>
@@ -728,17 +762,18 @@ function StatusItem({
 }: {
   children: ReactNode;
   icon: LucideIcon;
-  tone: "ready" | "next";
+  tone: "ready" | "next" | "limit";
 }) {
+  const toneClass =
+    tone === "ready"
+      ? "border-[#d8b56d]/[0.24] bg-[#d8b56d]/[0.10] text-[#d8b56d]"
+      : tone === "limit"
+        ? "border-[#8b5546]/[0.24] bg-[#8b5546]/[0.10] text-[#d7a092]"
+        : "border-[#87b296]/[0.22] bg-[#87b296]/[0.08] text-[#a6c8ad]";
+
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-[#ead7ad]/[0.10] bg-[#fff8eb]/[0.025] p-4">
-      <span
-        className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border ${
-          tone === "ready"
-            ? "border-[#d8b56d]/[0.24] bg-[#d8b56d]/[0.10] text-[#d8b56d]"
-            : "border-[#87b296]/[0.22] bg-[#87b296]/[0.08] text-[#a6c8ad]"
-        }`}
-      >
+      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg border ${toneClass}`}>
         <Icon size={15} />
       </span>
       <span className="text-sm font-medium text-[#fff8eb]/[0.88]">{children}</span>
