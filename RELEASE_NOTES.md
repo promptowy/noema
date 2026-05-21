@@ -12,6 +12,13 @@ Working:
 - profile-scoped browser sessions
 - saved tabs per profile
 - packaged Windows ZIP
+- unpacked Windows app folder
+- unsigned Windows installer
+
+Windows release outputs:
+- `apps/browser/release/win-unpacked/Noema.exe`
+- `apps/browser/release/Noema-0.1.0-Windows-x64.exe`
+- `apps/browser/release/Noema-0.1.0-Windows-x64.zip`
 
 Known limitations:
 - unsigned Windows build

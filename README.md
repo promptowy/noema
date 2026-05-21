@@ -50,22 +50,32 @@ This builds the landing page, desktop app renderer, Electron main process, and s
 
 ## Package The Windows App
 
-Create an unpacked Windows app folder:
+Create the full Windows release output:
 
 ```bash
 npx pnpm@10.12.1 dist:browser
 ```
 
-The packaged app executable is generated at:
+This creates:
 
 ```text
 apps/browser/release/win-unpacked/Noema.exe
+apps/browser/release/Noema-0.1.0-Windows-x64.exe
+apps/browser/release/Noema-0.1.0-Windows-x64.zip
 ```
 
-The package command creates the same local app folder:
+The unpacked app folder is useful for direct local testing. The `.exe` installer is an unsigned NSIS installer. The `.zip` is a portable Windows ZIP; unzip it and run `Noema.exe` from inside the extracted folder.
+
+Create only the unpacked Windows app folder:
 
 ```bash
 npx pnpm@10.12.1 package:browser
+```
+
+Run the Windows release command directly:
+
+```bash
+npx pnpm@10.12.1 release:windows
 ```
 
 ## Useful Scripts
@@ -77,7 +87,9 @@ npx pnpm@10.12.1 dev:browser
 npx pnpm@10.12.1 lint
 npx pnpm@10.12.1 typecheck
 npx pnpm@10.12.1 build
+npx pnpm@10.12.1 package:browser
 npx pnpm@10.12.1 dist:browser
+npx pnpm@10.12.1 release:windows
 ```
 
 ## What Works
@@ -90,7 +102,7 @@ npx pnpm@10.12.1 dist:browser
 - Start profile opens the browser session view for that profile
 - Back returns from session view to Control Center
 - Browser tabs, address/search bar, navigation, bookmarks, history, settings, and AI panel placeholder
-- Windows app folder packaging with Electron Builder
+- Windows app folder, unsigned installer, and portable ZIP packaging with Electron Builder
 
 ## What Is Placeholder
 
@@ -99,7 +111,7 @@ npx pnpm@10.12.1 dist:browser
 - Automation navigation is a placeholder
 - No fingerprint spoofing, stealth tooling, or proxy functionality is implemented
 - Profile sessions are associated at the UI level and are not isolated browser partitions yet
-- Packaged Windows builds are unsigned, unpacked app folders and do not include auto-update
+- Packaged Windows builds are unsigned and do not include auto-update
 - Waitlist and pricing on the landing page are static UI
 
 ## Local Data

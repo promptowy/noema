@@ -12,7 +12,8 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "package:browser": "pnpm --filter @browser/desktop package",
-    "dist:browser": "pnpm --filter @browser/desktop dist"
+    "dist:browser": "pnpm --filter @browser/desktop dist",
+    "release:windows": "pnpm --filter @browser/desktop release:windows"
   },
   "pnpm": {
     "onlyBuiltDependencies": ["electron", "esbuild", "sharp"]

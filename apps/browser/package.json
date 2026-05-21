@@ -8,13 +8,16 @@
     "dev": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
     "package": "pnpm build && electron-builder --dir",
-    "dist": "pnpm build && electron-builder --dir",
+    "dist": "pnpm build && electron-builder --win nsis zip",
+    "release:windows": "pnpm dist",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.electron.json --noEmit"
   },
   "build": {
-    "appId": "app.noema.browser",
+    "appId": "app.noema.desktop",
     "productName": "Noema",
+    "executableName": "Noema",
+    "artifactName": "Noema-${version}-Windows-${arch}.${ext}",
     "directories": {
       "output": "release"
     },
@@ -25,7 +28,27 @@
     ],
     "asar": true,
     "win": {
-      "signAndEditExecutable": false
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
     }
   },
   "dependencies": {
