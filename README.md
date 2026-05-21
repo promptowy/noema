@@ -1,91 +1,113 @@
-# BROWSER
+# Noema
 
-Premium AI-first desktop browser plus matching landing page.
+Browse with a mind beside you.
 
-## Stack
+Noema is a local MVP for a premium desktop browser with a matching landing page. It includes a Noema Control Center for local profiles, a real Electron browser session view, and a polished marketing page.
 
-- pnpm workspaces
-- TypeScript everywhere
-- `apps/browser`: Electron, React, Vite, Tailwind CSS
-- `apps/landing`: Next.js App Router, Tailwind CSS
-- `packages/ui`: shared React UI primitives
-- `packages/config`: shared TypeScript, Tailwind, and ESLint config
+## What You Need
 
-## Getting Started
+- Windows 10 or later
+- Node.js 20 or later
+- Internet access for the first dependency install
 
-Install pnpm if it is not already available:
+You do not need to install pnpm globally. The commands below use the pinned pnpm version.
 
-```bash
-npm install -g pnpm
-```
+## Install
 
-Install dependencies:
+From this folder, run:
 
 ```bash
-pnpm install
+npx pnpm@10.12.1 install
 ```
 
-Run both apps:
+## Run The Landing Page
 
 ```bash
-pnpm dev
+npx pnpm@10.12.1 dev:landing
 ```
 
-Run only the desktop browser:
-
-```bash
-pnpm dev:browser
-```
-
-Run only the landing page:
-
-```bash
-pnpm dev:landing
-```
-
-Build everything:
-
-```bash
-pnpm build
-```
-
-Lint everything:
-
-```bash
-pnpm lint
-```
-
-Typecheck everything:
-
-```bash
-pnpm typecheck
-```
-
-## Workspace Structure
+Open:
 
 ```text
-apps/
-  browser/        Electron desktop browser shell
-  landing/        Next.js marketing site
-packages/
-  config/         Shared TS, Tailwind, and ESLint config
-  ui/             Shared reusable UI components
+http://localhost:3000
 ```
 
-## Browser MVP Notes
+## Run The Desktop Browser App
 
-The Electron app uses `WebContentsView` for embedded browsing. Remote web content runs with:
+```bash
+npx pnpm@10.12.1 dev:browser
+```
 
-- `nodeIntegration: false`
-- `contextIsolation: true`
-- `sandbox: true`
-- a narrow typed preload bridge for app controls
+The Noema Control Center opens first. Use **Start** on a profile to open the browser session view.
 
-Tabs, bookmarks, history, and basic settings are persisted in a local JSON store under Electron user data.
+## Build Everything
 
-## Current Limitations
+```bash
+npx pnpm@10.12.1 build
+```
 
-- The AI assistant panel is a polished placeholder with mock actions.
-- Pricing and waitlist submission are UI placeholders.
-- Browser packaging/signing is not configured yet.
-- Permission prompts are denied by default in the MVP.
+This builds the landing page, desktop app renderer, Electron main process, and shared packages.
+
+## Package The Windows App
+
+Create an unpacked Windows app folder:
+
+```bash
+npx pnpm@10.12.1 dist:browser
+```
+
+The packaged app executable is generated at:
+
+```text
+apps/browser/release/win-unpacked/Noema.exe
+```
+
+The package command creates the same local app folder:
+
+```bash
+npx pnpm@10.12.1 package:browser
+```
+
+## Useful Scripts
+
+```bash
+npx pnpm@10.12.1 dev
+npx pnpm@10.12.1 dev:landing
+npx pnpm@10.12.1 dev:browser
+npx pnpm@10.12.1 lint
+npx pnpm@10.12.1 typecheck
+npx pnpm@10.12.1 build
+npx pnpm@10.12.1 dist:browser
+```
+
+## What Works
+
+- Premium Noema landing page
+- Electron desktop app with Control Center opening first
+- Local profile list loaded through secure Electron IPC
+- Create, edit, delete, search, and workspace-filter profiles
+- Profiles persist in a JSON file under Electron's app user data folder
+- Start profile opens the browser session view for that profile
+- Back returns from session view to Control Center
+- Browser tabs, address/search bar, navigation, bookmarks, history, settings, and AI panel placeholder
+- Windows app folder packaging with Electron Builder
+
+## What Is Placeholder
+
+- AI actions are visual placeholders only
+- Proxy fields are neutral UI placeholders only
+- Automation navigation is a placeholder
+- No fingerprint spoofing, stealth tooling, or proxy functionality is implemented
+- Profile sessions are associated at the UI level and are not isolated browser partitions yet
+- Packaged Windows builds are unsigned, unpacked app folders and do not include auto-update
+- Waitlist and pricing on the landing page are static UI
+
+## Local Data
+
+Profile data is stored by the Electron main process in the app user data directory. On Windows, this is typically similar to:
+
+```text
+C:\Users\<you>\AppData\Roaming\@browser\desktop\noema-profiles.json
+```
+
+Generated build output, release files, logs, caches, and local data are intentionally ignored by git.

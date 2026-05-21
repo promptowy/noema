@@ -10,7 +10,9 @@
     "dev:landing": "pnpm --filter @browser/landing dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "package:browser": "pnpm --filter @browser/desktop package",
+    "dist:browser": "pnpm --filter @browser/desktop dist"
   },
   "pnpm": {
     "onlyBuiltDependencies": ["electron", "esbuild", "sharp"]
