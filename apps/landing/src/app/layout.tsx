@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Noema - Focused Browser Workspaces",
   description:
-    "Noema is a Windows MVP desktop browser workspace for managing focused profiles, sessions, notes and research contexts from one clean control center."
+    "Noema is a Windows MVP desktop browser workspace for focused profiles, profile-scoped sessions, notes and research contexts."
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

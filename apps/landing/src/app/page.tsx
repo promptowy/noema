@@ -2,7 +2,6 @@ import {
   ArrowDownToLine,
   ArrowRight,
   Check,
-  ChevronRight,
   Circle,
   FileText,
   Folder,
@@ -13,7 +12,9 @@ import {
   PanelRight,
   Play,
   Search,
+  Settings2,
   ShieldCheck,
+  SlidersHorizontal,
   SquareStack,
   TimerReset,
   X
@@ -29,51 +30,52 @@ const navItems = [
   ["Download", "#download"]
 ];
 
-const whatItIs = [
+const productCards = [
   {
     icon: SquareStack,
     title: "Profiles for focused contexts",
-    copy: "Give each research track, client review or content task its own named browser context."
+    copy: "Create separate browser contexts for a client review, market scan, research sprint or content workflow."
   },
   {
     icon: Folder,
     title: "Workspaces for projects",
-    copy: "Group profiles by the work they belong to so sessions start from a clean dashboard."
+    copy: "Group related profiles into calm project areas instead of mixing every task into one browser window."
   },
   {
     icon: NotebookText,
     title: "Notes beside sessions",
-    copy: "Keep lightweight notes attached to profiles while the deeper session system evolves."
+    copy: "Keep the reason for a session visible, so you can return without reconstructing the work from memory."
   },
   {
     icon: Play,
     title: "Start sessions from a dashboard",
-    copy: "Launch a browser session directly from the profile table and return to Control Center."
+    copy: "Open a profile-scoped session from the Control Center, then return when the work is done."
   },
   {
     icon: ShieldCheck,
     title: "Local-first MVP data",
-    copy: "Profile data is stored locally through the Electron main process JSON store."
+    copy: "Profiles are stored locally by the desktop app. The MVP does not require an account or hosted backend."
   },
   {
     icon: PanelRight,
     title: "Assistant panel ready for future AI",
-    copy: "The interface is in place today; real AI actions are intentionally not wired yet."
+    copy: "The side panel is present as product scaffolding. Real AI behavior is intentionally not enabled yet."
   }
 ];
 
 const worksToday = [
   "Create, edit and delete profiles",
   "Store profiles locally",
-  "Open a browser session from a profile",
+  "Open profile-scoped browser sessions",
+  "Keep tabs per profile",
   "Search and filter profiles",
   "Use a context side panel",
-  "Package runs on Windows"
+  "Run the Windows MVP build"
 ];
 
 const roadmap = [
-  "Isolated browser sessions per profile",
-  "Saved tabs per profile",
+  "Stronger session isolation",
+  "Saved session history",
   "Real assistant integration",
   "Import/export",
   "Signed installer",
@@ -84,17 +86,17 @@ const walkthrough = [
   {
     step: "01",
     title: "Create a profile",
-    copy: "Name the context, choose a workspace, add tags and capture the note that explains what this session is for."
+    copy: "Name the context, assign it to a workspace, add tags and leave the note that explains what this session is for."
   },
   {
     step: "02",
     title: "Start a session",
-    copy: "Use the Start action in the Control Center to open the browser shell with that profile visible."
+    copy: "Use the Start button in the Control Center to open a focused browser session tied to that profile."
   },
   {
     step: "03",
     title: "Keep context attached",
-    copy: "Return to the dashboard when the session is done and keep the profile ready for the next pass."
+    copy: "Tabs and profile state remain associated with the profile, so the next pass starts from the right place."
   }
 ];
 
@@ -102,7 +104,7 @@ const comparison = [
   ["tabs everywhere", "profile dashboard"],
   ["context lost", "workspaces"],
   ["no project memory", "session notes"],
-  ["hard to separate work", "local profile store"],
+  ["hard to separate work", "profile-scoped sessions"],
   ["unclear start and stop", "clear start/stop flow"]
 ];
 
@@ -110,38 +112,76 @@ const faqs = [
   {
     question: "Is Noema a full browser today?",
     answer:
-      "It is a usable MVP desktop browser workspace. The Control Center, local profile management and session browser are working, but the product is still early."
+      "Noema is a usable desktop browser workspace MVP. It has a Control Center, local profiles, profile-scoped sessions and a browser view, but it is still early."
   },
   {
     question: "Does Noema have real AI yet?",
     answer:
-      "No. The assistant panel is a placeholder interface for future AI features. It does not summarize, automate or process pages yet."
+      "No. The assistant panel is a placeholder for future AI behavior. It does not summarize pages, run automation or process your browsing today."
   },
   {
     question: "Are profiles isolated?",
     answer:
-      "Not at a production-grade level yet. Profiles are locally stored records associated with sessions in the UI. Fully isolated browser sessions are on the roadmap."
+      "Profiles use scoped browser session state in the MVP, including per-profile tabs. This is not yet production-grade hardened profile isolation."
   },
   {
     question: "Is the Windows build signed?",
     answer:
-      "No. The MVP build is unsigned, so Windows may warn you before opening it. A signed installer is planned after the product shape is stable."
+      "No. The MVP package is unsigned, so Windows may show a warning before launch. A signed installer is planned later."
   },
   {
     question: "Can I use it for real work?",
     answer:
-      "Yes, for lightweight local organization and browser sessions. Do not treat it as a hardened production browser or automation platform yet."
+      "Yes, for local organization, focused sessions and research workflows. Do not treat it as a hardened enterprise browser yet."
   },
   {
     question: "What comes next?",
     answer:
-      "The next priorities are isolated profile sessions, saved tabs per profile, import/export and a real assistant integration."
+      "The next priorities are stronger session isolation, saved session history, a real assistant integration, import/export and a signed installer."
+  }
+];
+
+const mockRows = [
+  {
+    name: "Research Alpha",
+    workspace: "Research",
+    status: "Ready",
+    tags: "market, notes",
+    activity: "12 min ago"
+  },
+  {
+    name: "Market Desk",
+    workspace: "Market Watch",
+    status: "Active",
+    tags: "signals",
+    activity: "Now"
+  },
+  {
+    name: "Content Studio",
+    workspace: "Content",
+    status: "Ready",
+    tags: "outline",
+    activity: "Today"
+  },
+  {
+    name: "Client Review",
+    workspace: "Clients",
+    status: "Paused",
+    tags: "feedback",
+    activity: "Yesterday"
+  },
+  {
+    name: "Launch Notes",
+    workspace: "Research",
+    status: "Ready",
+    tags: "mvp",
+    activity: "Mon"
   }
 ];
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#070604] text-[#f5efe3]">
+    <main className="min-h-screen overflow-hidden bg-[#070604] text-[#f7efe1]">
       <Navigation />
       <Hero />
       <WhatItIs />
@@ -158,13 +198,13 @@ export default function Home() {
 
 function Navigation() {
   return (
-    <header className="sticky top-0 z-50 border-b border-[#ead7ad]/[0.08] bg-[#070604]/[0.88] backdrop-blur-xl">
-      <nav className="mx-auto flex h-14 max-w-[1500px] items-center justify-between px-4 sm:px-6">
-        <a className="flex items-center gap-3 text-sm font-semibold tracking-[0.08em] text-[#fff8eb]" href="#">
-          <span className="grid h-7 w-7 place-items-center rounded-lg border border-[#d8b56d]/[0.28] bg-[#d8b56d]/[0.10] text-xs text-[#d8b56d]">
+    <header className="sticky top-0 z-50 border-b border-[#ead7ad]/[0.09] bg-[#070604]/[0.90] backdrop-blur-xl">
+      <nav className="mx-auto flex h-14 max-w-[1540px] items-center justify-between px-4 sm:px-6">
+        <a className="flex items-center gap-3 text-sm font-semibold text-[#fff8eb]" href="#">
+          <span className="grid h-7 w-7 place-items-center rounded-md border border-[#d8b56d]/[0.30] bg-[#d8b56d]/[0.10] text-[11px] text-[#d8b56d]">
             N
           </span>
-          Noema
+          <span>Noema</span>
         </a>
         <div className="hidden items-center gap-6 text-xs font-medium text-[#d8cbb3]/[0.62] lg:flex">
           {navItems.map(([label, href]) => (
@@ -174,7 +214,7 @@ function Navigation() {
           ))}
         </div>
         <a
-          className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#d8b56d]/[0.38] bg-[#d8b56d]/[0.12] px-3 text-xs font-semibold text-[#fff2d2] transition hover:-translate-y-px hover:border-[#d8b56d]/[0.62] hover:bg-[#d8b56d]/[0.18]"
+          className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#d8b56d]/[0.36] bg-[#d8b56d]/[0.13] px-3 text-xs font-semibold text-[#fff2d2] transition hover:border-[#d8b56d]/[0.62] hover:bg-[#d8b56d]/[0.20]"
           href="#download"
         >
           Download MVP
@@ -187,11 +227,11 @@ function Navigation() {
 
 function Hero() {
   return (
-    <section className="relative border-b border-[#ead7ad]/[0.08] bg-[radial-gradient(circle_at_70%_0%,rgba(216,181,109,0.12),transparent_34%),linear-gradient(180deg,#090704_0%,#070604_68%,#0b0906_100%)] px-4 py-10 sm:px-6 lg:py-12">
-      <div className="mx-auto grid max-w-[1500px] gap-8 xl:grid-cols-[0.52fr_1fr] xl:items-center">
+    <section className="relative border-b border-[#ead7ad]/[0.08] bg-[radial-gradient(circle_at_78%_8%,rgba(216,181,109,0.13),transparent_31%),linear-gradient(180deg,#0b0805_0%,#070604_62%,#0b0906_100%)] px-4 pb-14 pt-7 sm:px-6 lg:pb-16 lg:pt-10">
+      <div className="mx-auto grid max-w-[1540px] gap-8 xl:grid-cols-[0.43fr_1fr] xl:items-center">
         <div className="max-w-2xl">
           <Badge>Windows MVP available</Badge>
-          <h1 className="mt-5 max-w-2xl text-balance text-4xl font-semibold leading-[1.02] tracking-[-0.03em] text-[#fff8eb] sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 max-w-2xl text-4xl font-semibold leading-[1.03] text-[#fff8eb] sm:text-5xl lg:text-6xl">
             Run focused browser sessions from one clean control center.
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-[#d8cbb3]/[0.72] sm:text-lg">
@@ -204,14 +244,14 @@ function Hero() {
               <ArrowDownToLine size={16} />
             </PrimaryLink>
             <SecondaryLink href="#status">
-              View what works
-              <ChevronRight size={16} />
+              See what works
+              <ArrowRight size={16} />
             </SecondaryLink>
           </div>
-          <div className="mt-8 grid max-w-xl grid-cols-3 gap-2 text-xs text-[#d8cbb3]/[0.56]">
-            <Metric value="Local" label="profile store" />
-            <Metric value="Windows" label="MVP build" />
-            <Metric value="Early" label="unsigned release" />
+          <div className="mt-8 grid max-w-xl grid-cols-3 gap-2">
+            <Metric value="Local" label="profile storage" />
+            <Metric value="Scoped" label="session state" />
+            <Metric value="Unsigned" label="Windows MVP" />
           </div>
         </div>
         <ControlCenterMockup />
@@ -221,102 +261,47 @@ function Hero() {
 }
 
 function ControlCenterMockup() {
-  const rows: Array<[string, string, string, string, string]> = [
-    ["Research Alpha", "Ready", "Research", "market, ai", "Start"],
-    ["Market Desk", "Running", "Market Watch", "signals", "Open"],
-    ["Content Studio", "Review", "Content", "drafts", "Start"],
-    ["Client Review", "Paused", "Clients", "notes", "Start"],
-    ["Launch Notes", "Ready", "Research", "mvp", "Start"]
-  ];
-
   return (
     <div
-      className="relative rounded-[26px] border border-[#ead7ad]/[0.14] bg-[#0b0907] p-2 shadow-[0_34px_120px_rgba(0,0,0,0.58)]"
+      className="relative rounded-[28px] border border-[#ead7ad]/[0.15] bg-[#0b0907] p-2 shadow-[0_34px_120px_rgba(0,0,0,0.62)]"
       id="product"
     >
-      <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[#f0ce7a]/[0.55] to-transparent" />
-      <div className="overflow-hidden rounded-[21px] border border-[#ead7ad]/[0.10] bg-[#100d09]">
+      <div className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-[#f0ce7a]/[0.58] to-transparent" />
+      <div className="overflow-hidden rounded-[23px] border border-[#ead7ad]/[0.11] bg-[#100d09]">
         <div className="flex h-12 items-center justify-between border-b border-[#ead7ad]/[0.09] bg-[#15110d] px-4">
           <div className="flex items-center gap-3">
             <div className="flex gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[#6d3b30]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#b7924b]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#6f765c]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#718062]" />
             </div>
-            <span className="text-xs font-medium text-[#d8cbb3]/[0.55]">Noema Control Center</span>
+            <span className="text-xs font-medium text-[#d8cbb3]/[0.60]">Noema Control Center</span>
           </div>
-          <span className="hidden rounded-full border border-[#d8b56d]/[0.18] bg-[#d8b56d]/[0.08] px-3 py-1 text-[11px] text-[#ead7ad]/[0.70] sm:block">
-            Main-process local store
+          <span className="hidden rounded-full border border-[#d8b56d]/[0.18] bg-[#d8b56d]/[0.08] px-3 py-1 text-[11px] text-[#ead7ad]/[0.72] sm:block">
+            Profile-scoped sessions
           </span>
         </div>
-        <div className="grid min-h-[560px] grid-cols-1 lg:grid-cols-[184px_176px_1fr]">
-          <aside className="hidden border-r border-[#ead7ad]/[0.09] bg-[#080706] p-3 lg:block">
-            <div className="mb-5 flex items-center gap-3 rounded-xl border border-[#d8b56d]/[0.18] bg-[#d8b56d]/[0.08] p-3">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#d8b56d]/[0.14] text-[#d8b56d]">
-                <LayoutDashboard size={16} />
-              </span>
-              <div>
-                <div className="text-sm font-semibold text-[#fff8eb]">Noema</div>
-                <div className="text-[11px] text-[#d8cbb3]/[0.42]">Control Center</div>
-              </div>
-            </div>
-            {["Profiles", "Workspaces", "Sessions", "Automation", "Insights", "Settings"].map(
-              (item) => (
-                <div
-                  className={`mb-1 rounded-lg border px-3 py-2 text-xs ${
-                    item === "Profiles"
-                      ? "border-[#d8b56d]/[0.24] bg-[#d8b56d]/[0.10] text-[#fff8eb]"
-                      : "border-transparent text-[#d8cbb3]/[0.50]"
-                  }`}
-                  key={item}
-                >
-                  {item}
-                </div>
-              )
-            )}
-            <div className="mt-10 rounded-2xl border border-[#ead7ad]/[0.10] bg-[#15110d] p-3">
-              <div className="text-xs font-medium text-[#fff8eb]">Personal workspace</div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#fff8eb]/[0.08]">
-                <div className="h-full w-[64%] rounded-full bg-[#d8b56d]" />
-              </div>
-              <div className="mt-2 text-[11px] text-[#d8cbb3]/[0.38]">Local MVP</div>
-            </div>
-          </aside>
-          <aside className="hidden border-r border-[#ead7ad]/[0.09] bg-[#0b0907] p-3 lg:block">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#d8cbb3]/[0.38]">
-                Workspaces
-              </span>
-              <span className="rounded-md border border-[#ead7ad]/[0.10] px-2 py-1 text-[11px] text-[#d8cbb3]/[0.45]">
-                +
-              </span>
-            </div>
-            {["Research", "Clients", "Content", "Market Watch", "Social", "Archive"].map(
-              (workspace) => (
-                <div
-                  className={`mb-1 flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs ${
-                    workspace === "Research"
-                      ? "border-[#d8b56d]/[0.26] bg-[#d8b56d]/[0.10] text-[#fff8eb]"
-                      : "border-transparent text-[#d8cbb3]/[0.48]"
-                  }`}
-                  key={workspace}
-                >
-                  <span className="h-2.5 w-2.5 rounded bg-[#d8b56d]/[0.85]" />
-                  {workspace}
-                </div>
-              )
-            )}
-          </aside>
+
+        <div className="grid min-h-[590px] grid-cols-1 lg:grid-cols-[170px_164px_1fr]">
+          <ControlSidebar />
+          <WorkspaceRail />
           <section className="min-w-0 bg-[#100d09] p-3 sm:p-4">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row">
-              <div className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#ead7ad]/[0.12] bg-[#17130e] px-3 text-xs text-[#d8cbb3]/[0.42]">
+            <div className="mb-4 flex flex-col gap-3 xl:flex-row">
+              <div className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#ead7ad]/[0.12] bg-[#17130e] px-3 text-xs text-[#d8cbb3]/[0.46]">
                 <Search size={15} className="text-[#d8b56d]" />
                 Search profiles, tags, notes...
               </div>
-              <button className="h-10 rounded-xl border border-[#d8b56d]/[0.36] bg-[#d8b56d] px-4 text-xs font-semibold text-[#090704] shadow-[0_12px_28px_rgba(216,181,109,0.14)]">
-                Create profile
-              </button>
+              <div className="flex gap-2">
+                <button className="hidden h-10 items-center gap-2 rounded-xl border border-[#ead7ad]/[0.11] bg-[#fff8eb]/[0.025] px-3 text-xs text-[#d8cbb3]/[0.62] sm:inline-flex">
+                  <SlidersHorizontal size={14} />
+                  Filters
+                </button>
+                <button className="h-10 rounded-xl border border-[#d8b56d]/[0.38] bg-[#d8b56d] px-4 text-xs font-semibold text-[#090704] shadow-[0_12px_28px_rgba(216,181,109,0.14)]">
+                  Create profile
+                </button>
+              </div>
             </div>
+
             <div className="mb-4 flex flex-wrap gap-2">
               {["Profiles", "Proxies", "Tags", "Statuses", "Notes", "Activity"].map((segment) => (
                 <span
@@ -331,54 +316,147 @@ function ControlCenterMockup() {
                 </span>
               ))}
             </div>
+
             <div className="overflow-hidden rounded-2xl border border-[#ead7ad]/[0.10] bg-[#0b0907]">
-              <div className="grid grid-cols-[1.3fr_0.7fr_1fr_1fr_0.8fr] gap-2 border-b border-[#ead7ad]/[0.10] bg-[#15110d] px-4 py-3 text-[10px] uppercase tracking-[0.12em] text-[#d8cbb3]/[0.38]">
-                <span>Profile</span>
-                <span>Status</span>
-                <span>Workspace</span>
-                <span className="hidden sm:block">Tags</span>
-                <span className="text-right">Action</span>
-              </div>
-              {rows.map(([name, status, workspace, tags, action]) => (
-                <div
-                  className="grid grid-cols-[1.3fr_0.7fr_1fr_1fr_0.8fr] items-center gap-2 border-b border-[#ead7ad]/[0.06] px-4 py-3 text-xs text-[#d8cbb3]/[0.60] last:border-b-0 hover:bg-[#d8b56d]/[0.045]"
-                  key={name}
-                >
-                  <span className="min-w-0 truncate font-medium text-[#fff8eb]">{name}</span>
-                  <span>
-                    <StatusPill status={status} />
-                  </span>
-                  <span className="truncate">{workspace}</span>
-                  <span className="hidden truncate sm:block">{tags}</span>
-                  <span className="text-right">
-                    <button className="rounded-lg border border-[#d8b56d]/[0.34] bg-[#d8b56d]/[0.12] px-3 py-1.5 text-[11px] font-medium text-[#fff2d2]">
-                      {action}
-                    </button>
-                  </span>
+              <div className="overflow-x-auto">
+                <div className="min-w-[720px]">
+                  <div className="grid grid-cols-[1.35fr_0.74fr_1fr_0.92fr_0.88fr_0.72fr] gap-3 border-b border-[#ead7ad]/[0.10] bg-[#15110d] px-4 py-3 text-[10px] uppercase text-[#d8cbb3]/[0.42]">
+                    <span>Profile</span>
+                    <span>Status</span>
+                    <span>Workspace</span>
+                    <span>Tags</span>
+                    <span>Last activity</span>
+                    <span className="text-right">Action</span>
+                  </div>
+                  {mockRows.map((row) => (
+                    <div
+                      className="grid grid-cols-[1.35fr_0.74fr_1fr_0.92fr_0.88fr_0.72fr] items-center gap-3 border-b border-[#ead7ad]/[0.06] px-4 py-3 text-xs text-[#d8cbb3]/[0.60] last:border-b-0 hover:bg-[#d8b56d]/[0.045]"
+                      key={row.name}
+                    >
+                      <span className="min-w-0 truncate font-medium text-[#fff8eb]">{row.name}</span>
+                      <StatusPill status={row.status} />
+                      <span className="truncate">{row.workspace}</span>
+                      <span className="truncate">{row.tags}</span>
+                      <span className="truncate">{row.activity}</span>
+                      <span className="text-right">
+                        <button className="rounded-lg border border-[#d8b56d]/[0.34] bg-[#d8b56d]/[0.12] px-3 py-1.5 text-[11px] font-semibold text-[#fff2d2]">
+                          Start
+                        </button>
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-            <div className="mt-4 grid gap-3 xl:grid-cols-[1fr_260px]">
+
+            <div className="mt-4 grid gap-3 xl:grid-cols-[1fr_280px]">
               <div className="rounded-2xl border border-[#ead7ad]/[0.10] bg-[#15110d] p-4">
                 <div className="mb-3 flex items-center gap-2 text-xs font-medium text-[#fff8eb]">
                   <FileText size={15} className="text-[#d8b56d]" />
-                  Notes attached to the selected profile
+                  Session note
                 </div>
-                <p className="text-sm leading-6 text-[#d8cbb3]/[0.56]">
-                  Track sources, decisions and the next thing to check before opening another tab.
+                <p className="text-sm leading-6 text-[#d8cbb3]/[0.58]">
+                  Compare onboarding pages, keep pricing references open and summarize next
+                  review points before switching contexts.
                 </p>
               </div>
-              <div className="rounded-2xl border border-[#ead7ad]/[0.10] bg-[#15110d] p-4">
-                <div className="mb-3 flex items-center gap-2 text-xs font-medium text-[#fff8eb]">
-                  <PanelRight size={15} className="text-[#d8b56d]" />
-                  Session preview
-                </div>
-                <div className="h-20 rounded-xl border border-[#ead7ad]/[0.10] bg-[#080706] p-3 text-[11px] text-[#d8cbb3]/[0.46]">
-                  Browser shell with address bar and assistant panel placeholder.
-                </div>
-              </div>
+              <SessionPreview />
             </div>
           </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ControlSidebar() {
+  return (
+    <aside className="hidden border-r border-[#ead7ad]/[0.09] bg-[#080706] p-3 lg:block">
+      <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#d8b56d]/[0.18] bg-[#d8b56d]/[0.08] p-3">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#d8b56d]/[0.14] text-[#d8b56d]">
+          <LayoutDashboard size={16} />
+        </span>
+        <div>
+          <div className="text-sm font-semibold text-[#fff8eb]">Noema</div>
+          <div className="text-[11px] text-[#d8cbb3]/[0.44]">Control Center</div>
+        </div>
+      </div>
+      {["Profiles", "Workspaces", "Sessions", "Automation", "Insights", "Settings"].map((item) => (
+        <div
+          className={`mb-1 rounded-lg border px-3 py-2 text-xs ${
+            item === "Profiles"
+              ? "border-[#d8b56d]/[0.24] bg-[#d8b56d]/[0.10] text-[#fff8eb]"
+              : "border-transparent text-[#d8cbb3]/[0.50]"
+          }`}
+          key={item}
+        >
+          {item}
+        </div>
+      ))}
+      <div className="mt-9 rounded-2xl border border-[#ead7ad]/[0.10] bg-[#15110d] p-3">
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-medium text-[#fff8eb]">Personal</div>
+          <Settings2 size={13} className="text-[#d8cbb3]/[0.38]" />
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#fff8eb]/[0.08]">
+          <div className="h-full w-[64%] rounded-full bg-[#d8b56d]" />
+        </div>
+        <div className="mt-2 text-[11px] text-[#d8cbb3]/[0.40]">Local MVP data</div>
+      </div>
+    </aside>
+  );
+}
+
+function WorkspaceRail() {
+  return (
+    <aside className="hidden border-r border-[#ead7ad]/[0.09] bg-[#0b0907] p-3 lg:block">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-[11px] font-semibold uppercase text-[#d8cbb3]/[0.40]">
+          Workspaces
+        </span>
+        <span className="rounded-md border border-[#ead7ad]/[0.10] px-2 py-1 text-[11px] text-[#d8cbb3]/[0.45]">
+          +
+        </span>
+      </div>
+      {["Research", "Clients", "Content", "Market Watch", "Social", "Archive"].map((workspace) => (
+        <div
+          className={`mb-1 flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs ${
+            workspace === "Research"
+              ? "border-[#d8b56d]/[0.26] bg-[#d8b56d]/[0.10] text-[#fff8eb]"
+              : "border-transparent text-[#d8cbb3]/[0.48]"
+          }`}
+          key={workspace}
+        >
+          <span className="h-2.5 w-2.5 rounded bg-[#d8b56d]/[0.85]" />
+          {workspace}
+        </div>
+      ))}
+    </aside>
+  );
+}
+
+function SessionPreview() {
+  return (
+    <div className="rounded-2xl border border-[#ead7ad]/[0.10] bg-[#15110d] p-4">
+      <div className="mb-3 flex items-center gap-2 text-xs font-medium text-[#fff8eb]">
+        <PanelRight size={15} className="text-[#d8b56d]" />
+        Browser session preview
+      </div>
+      <div className="overflow-hidden rounded-xl border border-[#ead7ad]/[0.10] bg-[#080706]">
+        <div className="border-b border-[#ead7ad]/[0.08] p-2">
+          <div className="h-5 rounded-md bg-[#fff8eb]/[0.07]" />
+        </div>
+        <div className="grid h-28 grid-cols-[1fr_64px]">
+          <div className="space-y-2 p-3">
+            <div className="h-3 w-2/3 rounded bg-[#d8b56d]/[0.28]" />
+            <div className="h-2 w-full rounded bg-[#fff8eb]/[0.07]" />
+            <div className="h-2 w-4/5 rounded bg-[#fff8eb]/[0.07]" />
+            <div className="h-8 rounded-lg border border-[#ead7ad]/[0.08] bg-[#fff8eb]/[0.03]" />
+          </div>
+          <div className="border-l border-[#ead7ad]/[0.08] bg-[#d8b56d]/[0.05] p-2">
+            <div className="mb-2 h-2 rounded bg-[#d8b56d]/[0.35]" />
+            <div className="h-12 rounded-md bg-[#fff8eb]/[0.06]" />
+          </div>
         </div>
       </div>
     </div>
@@ -392,10 +470,10 @@ function WhatItIs() {
         <SectionHeader
           eyebrow="What it is"
           title="A browser workspace, not another tab pile."
-          copy="Noema is for people who need to separate research, client work, content planning and project browsing without rebuilding context every time."
+          copy="Noema gives browser work a home base: profiles, workspaces, notes and sessions arranged like a serious desktop tool."
         />
         <div className="mt-10 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {whatItIs.map((item) => (
+          {productCards.map((item) => (
             <FeatureCard key={item.title} {...item} />
           ))}
         </div>
@@ -407,11 +485,11 @@ function WhatItIs() {
 function Status() {
   return (
     <section className="border-b border-[#ead7ad]/[0.08] bg-[#0a0806] px-4 py-20 sm:px-6 lg:py-24" id="status">
-      <div className="mx-auto grid max-w-[1400px] gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+      <div className="mx-auto grid max-w-[1400px] gap-8 lg:grid-cols-[0.72fr_1.28fr]">
         <SectionHeader
           eyebrow="MVP status"
           title="What works today."
-          copy="This is the honest current product surface. The MVP is useful, local and early."
+          copy="The current build is intentionally practical and honest. These are the working product surfaces in the Windows MVP."
         />
         <div className="grid gap-3 sm:grid-cols-2">
           {worksToday.map((item) => (
@@ -428,11 +506,11 @@ function Status() {
 function Roadmap() {
   return (
     <section className="border-b border-[#ead7ad]/[0.08] px-4 py-20 sm:px-6 lg:py-24" id="roadmap">
-      <div className="mx-auto grid max-w-[1400px] gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+      <div className="mx-auto grid max-w-[1400px] gap-8 lg:grid-cols-[0.72fr_1.28fr]">
         <SectionHeader
           eyebrow="Roadmap"
           title="What is coming next."
-          copy="Noema is not claiming more than it has. These are the next product foundations."
+          copy="Noema is not presenting future work as finished. These are the next foundations before a broader release."
         />
         <div className="grid gap-3 sm:grid-cols-2">
           {roadmap.map((item) => (
@@ -452,21 +530,19 @@ function Walkthrough() {
       <div className="mx-auto max-w-[1400px]">
         <SectionHeader
           eyebrow="Product walkthrough"
-          title="A simple control flow for browser work."
-          copy="The current MVP centers on one loop: create the context, start the session, return with the context still visible."
+          title="Three steps, one working rhythm."
+          copy="The MVP centers on a practical loop for research, content and client work."
         />
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {walkthrough.map((item) => (
             <article
-              className="rounded-2xl border border-[#ead7ad]/[0.10] bg-[#fff8eb]/[0.025] p-6 transition hover:border-[#d8b56d]/[0.22] hover:bg-[#fff8eb]/[0.035]"
+              className="rounded-2xl border border-[#ead7ad]/[0.10] bg-[#fff8eb]/[0.025] p-6 transition hover:border-[#d8b56d]/[0.24] hover:bg-[#fff8eb]/[0.04]"
               key={item.step}
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d8b56d]/[0.22] bg-[#d8b56d]/[0.10] text-xs font-semibold text-[#d8b56d]">
                 {item.step}
               </div>
-              <h3 className="mt-6 text-xl font-semibold tracking-[-0.01em] text-[#fff8eb]">
-                {item.title}
-              </h3>
+              <h3 className="mt-6 text-xl font-semibold text-[#fff8eb]">{item.title}</h3>
               <p className="mt-3 text-sm leading-6 text-[#d8cbb3]/[0.62]">{item.copy}</p>
             </article>
           ))}
@@ -483,7 +559,7 @@ function Comparison() {
         <SectionHeader
           eyebrow="Comparison"
           title="Normal browser vs Noema."
-          copy="Noema starts from the idea that the browser should have a project surface, not just a row of tabs."
+          copy="Noema starts from the dashboard instead of the tab strip, so each session begins with a clear context."
         />
         <div className="mt-10 overflow-hidden rounded-2xl border border-[#ead7ad]/[0.10] bg-[#0b0907]">
           <div className="grid grid-cols-2 border-b border-[#ead7ad]/[0.10] bg-[#15110d] text-sm font-semibold text-[#fff8eb]">
@@ -492,12 +568,12 @@ function Comparison() {
           </div>
           {comparison.map(([normal, noema]) => (
             <div className="grid grid-cols-2 border-b border-[#ead7ad]/[0.07] last:border-b-0" key={normal}>
-              <div className="flex items-center gap-2 border-r border-[#ead7ad]/[0.10] p-4 text-sm text-[#d8cbb3]/[0.52]">
-                <X size={15} className="text-[#8b5546]" />
+              <div className="flex items-center gap-2 border-r border-[#ead7ad]/[0.10] p-4 text-sm text-[#d8cbb3]/[0.54]">
+                <X size={15} className="shrink-0 text-[#8b5546]" />
                 {normal}
               </div>
               <div className="flex items-center gap-2 p-4 text-sm text-[#fff8eb]">
-                <Check size={15} className="text-[#d8b56d]" />
+                <Check size={15} className="shrink-0 text-[#d8b56d]" />
                 {noema}
               </div>
             </div>
@@ -511,21 +587,21 @@ function Comparison() {
 function Download() {
   return (
     <section className="border-b border-[#ead7ad]/[0.08] bg-[#0a0806] px-4 py-20 sm:px-6 lg:py-24" id="download">
-      <div className="mx-auto max-w-[1200px] rounded-[28px] border border-[#d8b56d]/[0.22] bg-[linear-gradient(135deg,rgba(216,181,109,0.12),rgba(255,248,235,0.025)_42%,rgba(135,178,150,0.08))] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.38)] sm:p-8 lg:p-10">
+      <div className="mx-auto max-w-[1200px] rounded-[28px] border border-[#d8b56d]/[0.24] bg-[linear-gradient(135deg,rgba(216,181,109,0.13),rgba(255,248,235,0.025)_42%,rgba(135,178,150,0.08))] p-5 shadow-[0_28px_90px_rgba(0,0,0,0.42)] sm:p-8 lg:p-10">
         <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
           <div>
-            <Badge>Early access build</Badge>
-            <h2 className="mt-5 max-w-2xl text-balance text-4xl font-semibold leading-tight tracking-[-0.03em] text-[#fff8eb] md:text-5xl">
+            <Badge>Early unsigned build</Badge>
+            <h2 className="mt-5 max-w-2xl text-4xl font-semibold leading-tight text-[#fff8eb] md:text-5xl">
               Try the Noema Windows MVP.
             </h2>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-[#d8cbb3]/[0.68]">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-[#d8cbb3]/[0.70]">
               This is an early unsigned Windows build. Unzip the folder and run Noema.exe.
             </p>
-            <p className="mt-4 max-w-2xl rounded-2xl border border-[#d8b56d]/[0.18] bg-[#070604]/[0.54] p-4 text-sm leading-6 text-[#fff2d2]/[0.78]">
+            <p className="mt-4 max-w-2xl rounded-2xl border border-[#d8b56d]/[0.18] bg-[#070604]/[0.56] p-4 text-sm leading-6 text-[#fff2d2]/[0.80]">
               Do not move Noema.exe out of its folder. The app needs the bundled files beside it.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#ead7ad]/[0.12] bg-[#070604]/[0.70] p-4">
+          <div className="rounded-2xl border border-[#ead7ad]/[0.12] bg-[#070604]/[0.72] p-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <PrimaryLink href="#download">
                 Download Windows MVP
@@ -536,7 +612,7 @@ function Download() {
                 <ArrowRight size={16} />
               </SecondaryLink>
             </div>
-            <div className="mt-5 grid gap-3 text-sm text-[#d8cbb3]/[0.58]" id="setup-notes">
+            <div className="mt-5 grid gap-3 text-sm text-[#d8cbb3]/[0.60]" id="setup-notes">
               <SetupNote label="1" text="Unzip Noema-Windows-MVP.zip." />
               <SetupNote label="2" text="Open the extracted folder." />
               <SetupNote label="3" text="Run Noema.exe from inside that folder." />
@@ -554,13 +630,13 @@ function FAQ() {
       <div className="mx-auto max-w-[900px]">
         <SectionHeader
           eyebrow="FAQ"
-          title="Clear answers for an early build."
-          copy="Noema is useful today, but it is still an MVP. These answers avoid pretending otherwise."
+          title="Honest answers for an early build."
+          copy="Noema is useful today, but it is still an MVP. The landing page should make that clear."
         />
         <div className="mt-10 space-y-3">
           {faqs.map((faq) => (
             <details
-              className="group rounded-2xl border border-[#ead7ad]/[0.10] bg-[#fff8eb]/[0.025] p-5 transition hover:border-[#d8b56d]/[0.22]"
+              className="group rounded-2xl border border-[#ead7ad]/[0.10] bg-[#fff8eb]/[0.025] p-5 transition hover:border-[#d8b56d]/[0.24]"
               key={faq.question}
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-[#fff8eb]">
@@ -569,7 +645,7 @@ function FAQ() {
                   +
                 </span>
               </summary>
-              <p className="mt-4 text-sm leading-7 text-[#d8cbb3]/[0.62]">{faq.answer}</p>
+              <p className="mt-4 text-sm leading-7 text-[#d8cbb3]/[0.64]">{faq.answer}</p>
             </details>
           ))}
         </div>
@@ -581,9 +657,9 @@ function FAQ() {
 function Footer() {
   return (
     <footer className="px-4 py-10 sm:px-6">
-      <div className="mx-auto flex max-w-[1400px] flex-col justify-between gap-6 border-t border-[#ead7ad]/[0.08] pt-8 text-sm text-[#d8cbb3]/[0.50] md:flex-row md:items-center">
+      <div className="mx-auto flex max-w-[1400px] flex-col justify-between gap-6 border-t border-[#ead7ad]/[0.08] pt-8 text-sm text-[#d8cbb3]/[0.52] md:flex-row md:items-center">
         <div>
-          <div className="flex items-center gap-3 text-lg font-semibold tracking-[0.06em] text-[#fff8eb]">
+          <div className="flex items-center gap-3 text-lg font-semibold text-[#fff8eb]">
             <span className="grid h-8 w-8 place-items-center rounded-lg border border-[#d8b56d]/[0.28] bg-[#d8b56d]/[0.10] text-xs text-[#d8b56d]">
               N
             </span>
@@ -594,9 +670,9 @@ function Footer() {
           </div>
         </div>
         <div className="flex flex-wrap gap-5">
-          {["Product", "MVP status", "Roadmap", "Download"].map((item) => (
-            <a className="transition hover:text-[#fff8eb]" href="#" key={item}>
-              {item}
+          {navItems.map(([label, href]) => (
+            <a className="transition hover:text-[#fff8eb]" href={href} key={label}>
+              {label}
             </a>
           ))}
         </div>
@@ -617,10 +693,10 @@ function SectionHeader({
   return (
     <div className="max-w-3xl">
       <Eyebrow>{eyebrow}</Eyebrow>
-      <h2 className="mt-4 text-balance text-3xl font-semibold leading-tight tracking-[-0.025em] text-[#fff8eb] sm:text-4xl md:text-5xl">
+      <h2 className="mt-4 text-3xl font-semibold leading-tight text-[#fff8eb] sm:text-4xl md:text-5xl">
         {title}
       </h2>
-      <p className="mt-4 max-w-2xl text-base leading-7 text-[#d8cbb3]/[0.64]">{copy}</p>
+      <p className="mt-4 max-w-2xl text-base leading-7 text-[#d8cbb3]/[0.66]">{copy}</p>
     </div>
   );
 }
@@ -635,11 +711,11 @@ function FeatureCard({
   title: string;
 }) {
   return (
-    <article className="rounded-2xl border border-[#ead7ad]/[0.10] bg-[#fff8eb]/[0.025] p-5 shadow-[inset_0_1px_0_rgba(255,248,235,0.035)] transition hover:-translate-y-0.5 hover:border-[#d8b56d]/[0.24] hover:bg-[#fff8eb]/[0.035]">
+    <article className="rounded-2xl border border-[#ead7ad]/[0.10] bg-[#fff8eb]/[0.025] p-5 shadow-[inset_0_1px_0_rgba(255,248,235,0.035)] transition hover:border-[#d8b56d]/[0.24] hover:bg-[#fff8eb]/[0.04]">
       <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#d8b56d]/[0.20] bg-[#d8b56d]/[0.10] text-[#d8b56d]">
         <Icon size={18} />
       </div>
-      <h3 className="mt-5 text-lg font-semibold tracking-[-0.01em] text-[#fff8eb]">{title}</h3>
+      <h3 className="mt-5 text-lg font-semibold text-[#fff8eb]">{title}</h3>
       <p className="mt-3 text-sm leading-6 text-[#d8cbb3]/[0.62]">{copy}</p>
     </article>
   );
@@ -672,16 +748,14 @@ function StatusItem({
 
 function StatusPill({ status }: { status: string }) {
   const className =
-    status === "Running"
+    status === "Active"
       ? "border-[#87b296]/[0.25] bg-[#87b296]/[0.10] text-[#b9d2be]"
-      : status === "Review"
-        ? "border-[#d8b56d]/[0.28] bg-[#d8b56d]/[0.10] text-[#fff2d2]"
-        : status === "Paused"
-          ? "border-[#ead7ad]/[0.12] bg-[#fff8eb]/[0.04] text-[#d8cbb3]/[0.50]"
-          : "border-[#ead7ad]/[0.12] bg-[#fff8eb]/[0.04] text-[#d8cbb3]/[0.70]";
+      : status === "Paused"
+        ? "border-[#ead7ad]/[0.12] bg-[#fff8eb]/[0.04] text-[#d8cbb3]/[0.54]"
+        : "border-[#d8b56d]/[0.24] bg-[#d8b56d]/[0.08] text-[#fff2d2]";
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] ${className}`}>
+    <span className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] ${className}`}>
       <Circle fill="currentColor" size={6} />
       {status}
     </span>
@@ -692,7 +766,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-[#ead7ad]/[0.10] bg-[#fff8eb]/[0.025] p-3">
       <div className="text-sm font-semibold text-[#fff8eb]">{value}</div>
-      <div className="mt-1 text-[11px] text-[#d8cbb3]/[0.44]">{label}</div>
+      <div className="mt-1 text-[11px] text-[#d8cbb3]/[0.46]">{label}</div>
     </div>
   );
 }
@@ -710,7 +784,7 @@ function SetupNote({ label, text }: { label: string; text: string }) {
 
 function Badge({ children }: { children: ReactNode }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-[#d8b56d]/[0.24] bg-[#d8b56d]/[0.08] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#fff2d2]">
+    <div className="inline-flex items-center gap-2 rounded-full border border-[#d8b56d]/[0.24] bg-[#d8b56d]/[0.08] px-3 py-1.5 text-xs font-semibold uppercase text-[#fff2d2]">
       <Gauge size={13} />
       {children}
     </div>
@@ -718,17 +792,13 @@ function Badge({ children }: { children: ReactNode }) {
 }
 
 function Eyebrow({ children }: { children: ReactNode }) {
-  return (
-    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#d8b56d]">
-      {children}
-    </div>
-  );
+  return <div className="text-xs font-semibold uppercase text-[#d8b56d]">{children}</div>;
 }
 
 function PrimaryLink({ children, href }: { children: ReactNode; href: string }) {
   return (
     <a
-      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#d8b56d]/[0.36] bg-[#d8b56d] px-4 text-sm font-semibold text-[#090704] shadow-[0_14px_34px_rgba(216,181,109,0.18)] transition hover:-translate-y-px hover:bg-[#efcd82]"
+      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#d8b56d]/[0.36] bg-[#d8b56d] px-4 text-sm font-semibold text-[#090704] shadow-[0_14px_34px_rgba(216,181,109,0.18)] transition hover:bg-[#efcd82]"
       href={href}
     >
       {children}
@@ -739,7 +809,7 @@ function PrimaryLink({ children, href }: { children: ReactNode; href: string }) 
 function SecondaryLink({ children, href }: { children: ReactNode; href: string }) {
   return (
     <a
-      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#ead7ad]/[0.14] bg-[#fff8eb]/[0.025] px-4 text-sm font-semibold text-[#fff8eb] transition hover:-translate-y-px hover:border-[#d8b56d]/[0.34] hover:bg-[#fff8eb]/[0.05]"
+      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#ead7ad]/[0.14] bg-[#fff8eb]/[0.025] px-4 text-sm font-semibold text-[#fff8eb] transition hover:border-[#d8b56d]/[0.34] hover:bg-[#fff8eb]/[0.05]"
       href={href}
     >
       {children}
