@@ -48,6 +48,70 @@ npx pnpm@10.12.1 build
 
 This builds the landing page, desktop app renderer, Electron main process, and shared packages.
 
+## Deploy The Landing Page
+
+The landing page lives in:
+
+```text
+apps/landing
+```
+
+It is a Next.js App Router site and can be deployed independently from the desktop app.
+
+### Vercel
+
+1. Import this repository into Vercel.
+2. Set the project/root directory to:
+
+```text
+apps/landing
+```
+
+3. Use these settings:
+
+```text
+Framework preset: Next.js
+Install command: npx pnpm@10.12.1 install --frozen-lockfile
+Build command: npx pnpm@10.12.1 build
+Output directory: leave empty / Vercel managed
+Node.js version: 20 or later
+```
+
+If Vercel asks to build from the repository root instead, use:
+
+```bash
+npx pnpm@10.12.1 --filter @browser/landing build
+```
+
+### Netlify
+
+1. Create a new Netlify site from this repository.
+2. Select the landing app folder/base directory:
+
+```text
+apps/landing
+```
+
+3. Use these settings:
+
+```text
+Framework: Next.js
+Install command: npx pnpm@10.12.1 install --frozen-lockfile
+Build command: npx pnpm@10.12.1 build
+Publish directory: .next
+Node.js version: 20 or later
+```
+
+If Netlify builds from the repository root, use:
+
+```text
+Base directory: .
+Build command: npx pnpm@10.12.1 --filter @browser/landing build
+Publish directory: apps/landing/.next
+```
+
+The landing page does not currently host the Windows ZIP directly. See [DOWNLOAD_SETUP.md](DOWNLOAD_SETUP.md) before connecting the public Download button.
+
 ## Package The Windows App
 
 Create the full Windows release output:
