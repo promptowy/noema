@@ -2,7 +2,10 @@ import { contextBridge, ipcRenderer } from "electron";
 import type {
   AppState,
   BrowserBounds,
+  ControlProfile,
   NavigatePayload,
+  ProfileDraft,
+  ProfileUpdate,
   SettingsPatch
 } from "./types";
 
@@ -32,6 +35,17 @@ const api = {
     ipcRenderer.invoke("browser:toggle-bookmark", tabId) as Promise<void>,
   updateSettings: (patch: SettingsPatch) =>
     ipcRenderer.invoke("browser:update-settings", patch) as Promise<void>,
+  profiles: {
+    list: () => ipcRenderer.invoke("profiles:list") as Promise<ControlProfile[]>,
+    create: (draft: ProfileDraft) =>
+      ipcRenderer.invoke("profiles:create", draft) as Promise<ControlProfile[]>,
+    update: (patch: ProfileUpdate) =>
+      ipcRenderer.invoke("profiles:update", patch) as Promise<ControlProfile[]>,
+    delete: (id: string) =>
+      ipcRenderer.invoke("profiles:delete", id) as Promise<ControlProfile[]>,
+    resetDemoData: () =>
+      ipcRenderer.invoke("profiles:resetDemoData") as Promise<ControlProfile[]>
+  },
   window: {
     minimize: () => ipcRenderer.invoke("window:minimize") as Promise<void>,
     maximize: () => ipcRenderer.invoke("window:maximize") as Promise<void>,

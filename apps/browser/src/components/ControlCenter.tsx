@@ -33,21 +33,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { Button, IconButton } from "@browser/ui";
-
-export type ProfileStatus = "Ready" | "Review" | "Paused" | "Running";
-
-export type ControlProfile = {
-  id: string;
-  name: string;
-  workspace: string;
-  status: ProfileStatus;
-  proxy: "None" | "Residential" | "Workspace" | "Pending";
-  tags: string[];
-  notes: string;
-  lastActivity: string;
-  created: string;
-  runtime: string;
-};
+import type { ControlProfile, ProfileDraft, ProfileStatus } from "../../electron/types";
 
 type ProfileFormState = {
   name: string;
@@ -57,7 +43,6 @@ type ProfileFormState = {
   notes: string;
 };
 
-const PROFILE_STORAGE_KEY = "noema.control.profiles.v1";
 const ALL_WORKSPACES = "All profiles";
 const statusFilters: Array<"All" | ProfileStatus> = [
   "All",
@@ -85,105 +70,6 @@ const workspaces = [
   { label: "Archive", tone: "bg-[#6f6659]" }
 ];
 
-const demoProfiles: ControlProfile[] = [
-  {
-    id: "research-alpha",
-    name: "Research Alpha",
-    workspace: "Research",
-    status: "Ready",
-    proxy: "Workspace",
-    tags: ["research", "priority"],
-    notes: "Compare sources before synthesis.",
-    lastActivity: "12 min ago",
-    created: "May 18",
-    runtime: "1h 24m"
-  },
-  {
-    id: "market-desk",
-    name: "Market Desk",
-    workspace: "Market Watch",
-    status: "Running",
-    proxy: "Residential",
-    tags: ["market", "daily"],
-    notes: "Track product and pricing shifts.",
-    lastActivity: "Active now",
-    created: "May 17",
-    runtime: "42m"
-  },
-  {
-    id: "content-studio",
-    name: "Content Studio",
-    workspace: "Content",
-    status: "Ready",
-    proxy: "None",
-    tags: ["drafts", "editorial"],
-    notes: "Gather references for launch copy.",
-    lastActivity: "1h ago",
-    created: "May 16",
-    runtime: "2h 08m"
-  },
-  {
-    id: "client-review",
-    name: "Client Review",
-    workspace: "Clients",
-    status: "Review",
-    proxy: "Workspace",
-    tags: ["client", "notes"],
-    notes: "Keep findings concise and cited.",
-    lastActivity: "3h ago",
-    created: "May 15",
-    runtime: "58m"
-  },
-  {
-    id: "launch-notes",
-    name: "Launch Notes",
-    workspace: "Content",
-    status: "Paused",
-    proxy: "Pending",
-    tags: ["launch"],
-    notes: "Return after messaging review.",
-    lastActivity: "Yesterday",
-    created: "May 13",
-    runtime: "19m"
-  },
-  {
-    id: "trend-watch",
-    name: "Trend Watch",
-    workspace: "Social",
-    status: "Ready",
-    proxy: "None",
-    tags: ["signals", "weekly"],
-    notes: "Look for durable patterns.",
-    lastActivity: "Yesterday",
-    created: "May 12",
-    runtime: "1h 01m"
-  },
-  {
-    id: "design-lab",
-    name: "Design Lab",
-    workspace: "Research",
-    status: "Review",
-    proxy: "Workspace",
-    tags: ["design", "inspo"],
-    notes: "Save only high-signal references.",
-    lastActivity: "May 19",
-    created: "May 10",
-    runtime: "3h 12m"
-  },
-  {
-    id: "archive-session",
-    name: "Archive Session",
-    workspace: "Archive",
-    status: "Paused",
-    proxy: "None",
-    tags: ["archive"],
-    notes: "Dormant context, kept locally.",
-    lastActivity: "May 14",
-    created: "May 08",
-    runtime: "11m"
-  }
-];
-
 const segments = ["Profiles", "Proxies", "Tags", "Statuses", "Notes", "Activity"];
 
 type ControlCenterProps = {
@@ -191,7 +77,9 @@ type ControlCenterProps = {
 };
 
 export function ControlCenter({ onStartProfile }: ControlCenterProps) {
-  const [profiles, setProfiles] = useState<ControlProfile[]>(loadProfiles);
+  const [profiles, setProfiles] = useState<ControlProfile[]>([]);
+  const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
+  const [profileError, setProfileError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [activeWorkspace, setActiveWorkspace] = useState(ALL_WORKSPACES);
   const [activeStatus, setActiveStatus] = useState<"All" | ProfileStatus>("All");
@@ -201,8 +89,30 @@ export function ControlCenter({ onStartProfile }: ControlCenterProps) {
   const [form, setForm] = useState<ProfileFormState>(emptyProfileForm());
 
   useEffect(() => {
-    window.localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profiles));
-  }, [profiles]);
+    let disposed = false;
+    window.browserAPI.profiles
+      .list()
+      .then((nextProfiles) => {
+        if (!disposed) {
+          setProfiles(nextProfiles);
+          setProfileError(null);
+        }
+      })
+      .catch(() => {
+        if (!disposed) {
+          setProfileError("Profiles could not be loaded.");
+        }
+      })
+      .finally(() => {
+        if (!disposed) {
+          setIsLoadingProfiles(false);
+        }
+      });
+
+    return () => {
+      disposed = true;
+    };
+  }, []);
 
   const filteredProfiles = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -260,14 +170,14 @@ export function ControlCenter({ onStartProfile }: ControlCenterProps) {
     setForm(emptyProfileForm());
   }
 
-  function saveProfile(event: FormEvent) {
+  async function saveProfile(event: FormEvent) {
     event.preventDefault();
     const name = form.name.trim();
     if (!name) {
       return;
     }
 
-    const nextProfileFields = {
+    const nextProfileFields: ProfileDraft = {
       name,
       workspace: form.workspace,
       status: form.status,
@@ -275,44 +185,35 @@ export function ControlCenter({ onStartProfile }: ControlCenterProps) {
       notes: form.notes.trim()
     };
 
-    if (modalMode === "edit" && editingProfile) {
-      setProfiles((currentProfiles) =>
-        currentProfiles.map((profile) =>
-          profile.id === editingProfile.id
-            ? {
-                ...profile,
-                ...nextProfileFields,
-                lastActivity: "Just now"
-              }
-            : profile
-        )
-      );
-    } else {
-      setProfiles((currentProfiles) => [
-        {
-          id: createProfileId(name),
-          ...nextProfileFields,
-          proxy: "None",
-          lastActivity: "Just now",
-          created: formatCreatedDate(),
-          runtime: "0m"
-        },
-        ...currentProfiles
-      ]);
+    try {
+      const nextProfiles =
+        modalMode === "edit" && editingProfile
+          ? await window.browserAPI.profiles.update({
+              id: editingProfile.id,
+              ...nextProfileFields
+            })
+          : await window.browserAPI.profiles.create(nextProfileFields);
+      setProfiles(nextProfiles);
+      setProfileError(null);
+      closeModal();
+    } catch {
+      setProfileError("Profile changes could not be saved.");
     }
-
-    closeModal();
   }
 
-  function confirmDeleteProfile() {
+  async function confirmDeleteProfile() {
     if (!deleteTarget) {
       return;
     }
 
-    setProfiles((currentProfiles) =>
-      currentProfiles.filter((profile) => profile.id !== deleteTarget.id)
-    );
-    setDeleteTarget(null);
+    try {
+      const nextProfiles = await window.browserAPI.profiles.delete(deleteTarget.id);
+      setProfiles(nextProfiles);
+      setProfileError(null);
+      setDeleteTarget(null);
+    } catch {
+      setProfileError("Profile could not be deleted.");
+    }
   }
 
   return (
@@ -348,11 +249,19 @@ export function ControlCenter({ onStartProfile }: ControlCenterProps) {
                 </div>
                 <div className="flex items-center gap-2 text-xs text-[#f4ecdc]/[0.44]">
                   <span className="h-2 w-2 rounded-full bg-[#e7c989]" />
-                  {filteredProfiles.length} of {profiles.length} profiles
+                  {isLoadingProfiles
+                    ? "Loading profiles"
+                    : `${filteredProfiles.length} of ${profiles.length} profiles`}
                   <span className="h-1 w-1 rounded-full bg-[#f4ecdc]/[0.24]" />
-                  Local persistence
+                  Main-process store
                 </div>
               </div>
+
+              {profileError ? (
+                <div className="mt-3 rounded-xl border border-[#6b332b]/[0.26] bg-[#6b332b]/[0.14] px-3 py-2 text-xs text-[#ffe8df]/[0.82]">
+                  {profileError}
+                </div>
+              ) : null}
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-2 pb-3">
                 <div className="flex gap-1.5 overflow-x-auto">
@@ -390,7 +299,9 @@ export function ControlCenter({ onStartProfile }: ControlCenterProps) {
               </div>
             </div>
 
-            {filteredProfiles.length > 0 ? (
+            {isLoadingProfiles ? (
+              <LoadingState />
+            ) : filteredProfiles.length > 0 ? (
               <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
                 <table className="w-full min-w-[1090px] table-fixed border-separate border-spacing-0 text-left">
                   <colgroup>
@@ -864,6 +775,20 @@ function EmptyState({
   );
 }
 
+function LoadingState() {
+  return (
+    <div className="grid min-h-[360px] flex-1 place-items-center px-6 py-12">
+      <div className="rounded-[24px] border border-[#e7c989]/[0.14] bg-[#15120d]/[0.68] p-7 text-center shadow-[0_24px_90px_rgba(0,0,0,0.28)]">
+        <div className="mx-auto h-10 w-10 animate-pulse rounded-2xl border border-[#e7c989]/[0.20] bg-[#e7c989]/[0.10]" />
+        <div className="mt-5 text-sm font-medium text-[#f4ecdc]">Loading profiles</div>
+        <p className="mt-2 text-sm text-[#f4ecdc]/[0.46]">
+          Reading your local Noema profile store.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ProfileModal({
   form,
   mode,
@@ -1047,52 +972,6 @@ function emptyProfileForm(workspace = "Research"): ProfileFormState {
   };
 }
 
-function loadProfiles() {
-  const stored = window.localStorage.getItem(PROFILE_STORAGE_KEY);
-  if (!stored) {
-    return demoProfiles;
-  }
-
-  try {
-    const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed)) {
-      return demoProfiles;
-    }
-    return parsed.filter(isControlProfile);
-  } catch {
-    return demoProfiles;
-  }
-}
-
-function isControlProfile(value: unknown): value is ControlProfile {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const profile = value as Partial<ControlProfile>;
-  return (
-    typeof profile.id === "string" &&
-    typeof profile.name === "string" &&
-    typeof profile.workspace === "string" &&
-    isProfileStatus(profile.status) &&
-    Array.isArray(profile.tags) &&
-    profile.tags.every((tag) => typeof tag === "string") &&
-    typeof profile.notes === "string"
-  );
-}
-
-function isProfileStatus(value: unknown): value is ProfileStatus {
-  return value === "Ready" || value === "Review" || value === "Paused" || value === "Running";
-}
-
-function createProfileId(name: string) {
-  const slug = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-  return `${slug || "profile"}-${Date.now().toString(36)}`;
-}
-
 function parseTags(tags: string) {
   return Array.from(
     new Set(
@@ -1102,11 +981,4 @@ function parseTags(tags: string) {
         .filter(Boolean)
     )
   );
-}
-
-function formatCreatedDate() {
-  return new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric"
-  }).format(new Date());
 }

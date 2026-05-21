@@ -1,7 +1,10 @@
 import type {
   AppState,
   BrowserBounds,
+  ControlProfile,
   NavigatePayload,
+  ProfileDraft,
+  ProfileUpdate,
   SettingsPatch
 } from "../../electron/types";
 
@@ -18,6 +21,13 @@ type BrowserApi = {
   reload: () => Promise<void>;
   toggleBookmark: (tabId?: string) => Promise<void>;
   updateSettings: (patch: SettingsPatch) => Promise<void>;
+  profiles: {
+    list: () => Promise<ControlProfile[]>;
+    create: (draft: ProfileDraft) => Promise<ControlProfile[]>;
+    update: (patch: ProfileUpdate) => Promise<ControlProfile[]>;
+    delete: (id: string) => Promise<ControlProfile[]>;
+    resetDemoData: () => Promise<ControlProfile[]>;
+  };
   window: {
     minimize: () => Promise<void>;
     maximize: () => Promise<void>;

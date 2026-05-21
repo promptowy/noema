@@ -7,6 +7,15 @@ import {
 } from "electron";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
+import {
+  createProfile,
+  deleteProfile,
+  loadProfiles,
+  resetDemoProfiles,
+  sanitizeProfileDraft,
+  sanitizeProfileUpdate,
+  updateProfile
+} from "./profileStore";
 import { loadStore, saveStore } from "./store";
 import type {
   AppState,
@@ -518,6 +527,29 @@ async function createWindow() {
 
 function registerIpcHandlers() {
   ipcMain.handle("browser:get-state", () => assertState());
+  ipcMain.handle("profiles:list", () => loadProfiles());
+  ipcMain.handle("profiles:create", (_event, rawDraft: unknown) => {
+    const draft = sanitizeProfileDraft(rawDraft);
+    if (!draft) {
+      throw new Error("Invalid profile payload.");
+    }
+    return createProfile(draft);
+  });
+  ipcMain.handle("profiles:update", (_event, rawUpdate: unknown) => {
+    const update = sanitizeProfileUpdate(rawUpdate);
+    if (!update) {
+      throw new Error("Invalid profile update.");
+    }
+    return updateProfile(update);
+  });
+  ipcMain.handle("profiles:delete", (_event, rawId: unknown) => {
+    const id = sanitizeString(rawId, 128);
+    if (!id) {
+      throw new Error("Invalid profile id.");
+    }
+    return deleteProfile(id);
+  });
+  ipcMain.handle("profiles:resetDemoData", () => resetDemoProfiles());
   ipcMain.handle("browser:set-bounds", (_event, rawBounds: unknown) => {
     const bounds = sanitizeBounds(rawBounds);
     if (!bounds) {

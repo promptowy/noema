@@ -1,9 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { AppState } from "../electron/types";
+import type { AppState, ControlProfile } from "../electron/types";
 import { AssistantPanel } from "./components/AssistantPanel";
 import { BookmarksPage, HistoryPage, SettingsPage } from "./components/LibraryPages";
 import { ControlCenter } from "./components/ControlCenter";
-import type { ControlProfile } from "./components/ControlCenter";
 import { Sidebar } from "./components/Sidebar";
 import { StartPage } from "./components/StartPage";
 import { TitleBar } from "./components/TitleBar";

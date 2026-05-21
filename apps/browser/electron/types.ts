@@ -52,3 +52,32 @@ export type NavigatePayload = {
 };
 
 export type SettingsPatch = Partial<BrowserSettings>;
+
+export type ProfileStatus = "Ready" | "Review" | "Paused" | "Running";
+
+export type ProfileProxy = "None" | "Residential" | "Workspace" | "Pending";
+
+export type ControlProfile = {
+  id: string;
+  name: string;
+  workspace: string;
+  status: ProfileStatus;
+  proxy: ProfileProxy;
+  tags: string[];
+  notes: string;
+  lastActivity: string;
+  created: string;
+  runtime: string;
+};
+
+export type ProfileDraft = {
+  name: string;
+  workspace: string;
+  status: ProfileStatus;
+  tags: string[];
+  notes: string;
+};
+
+export type ProfileUpdate = Partial<ProfileDraft> & {
+  id: string;
+};
