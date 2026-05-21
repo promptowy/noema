@@ -154,7 +154,7 @@ function Surface({
   return (
     <div className="h-full overflow-y-auto px-8 py-8">
       <div className="mx-auto max-w-6xl">
-        <SectionEyebrow>BROWSER</SectionEyebrow>
+        <SectionEyebrow>Noema</SectionEyebrow>
         <div className="mb-8 flex items-center gap-4">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.08] text-aurora-cyan">
             {icon}

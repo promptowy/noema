@@ -20,11 +20,11 @@ export function AssistantPanel({ activeTab, onClose }: AssistantPanelProps) {
             <Bot size={18} />
           </span>
           <div>
-            <div className="text-sm font-semibold text-white">Assistant</div>
-            <div className="text-xs text-white/40">Context aware placeholder</div>
+            <div className="text-sm font-semibold text-white">Noema</div>
+            <div className="text-xs text-white/40">A calm layer of context</div>
           </div>
         </div>
-        <IconButton label="Close assistant" onClick={onClose}>
+        <IconButton label="Close Noema" onClick={onClose}>
           <X size={16} />
         </IconButton>
       </div>
@@ -40,16 +40,16 @@ export function AssistantPanel({ activeTab, onClose }: AssistantPanelProps) {
         </div>
 
         <div className="mt-4 grid gap-3">
-          <AssistantAction icon={<FileText size={17} />} title="Summarize" />
-          <AssistantAction icon={<ListTodo size={17} />} title="Extract tasks" />
-          <AssistantAction icon={<Zap size={17} />} title="Explain page" />
+          <AssistantAction icon={<FileText size={17} />} title="Clarify" />
+          <AssistantAction icon={<ListTodo size={17} />} title="Trace the thread" />
+          <AssistantAction icon={<Zap size={17} />} title="Surface insights" />
         </div>
 
         <div className="mt-5 rounded-2xl border border-aurora-cyan/[0.18] bg-aurora-cyan/[0.07] p-4">
           <Sparkles className="mb-4 text-aurora-cyan" size={20} />
           <p className="text-sm leading-6 text-white/[0.64]">
-            The next implementation step can connect this panel to your preferred LLM provider,
-            stream page-aware answers, and write results into a workspace memory.
+            This panel is reserved for page-aware intelligence: a place to clarify, compare and
+            continue without losing the thread.
           </p>
         </div>
       </div>

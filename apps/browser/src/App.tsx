@@ -84,7 +84,7 @@ export default function App() {
     return (
       <div className="grid h-screen place-items-center bg-radial-aura text-white">
         <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-6 py-4 text-sm shadow-panel">
-          Starting BROWSER
+          Starting Noema
         </div>
       </div>
     );

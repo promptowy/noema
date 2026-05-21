@@ -6,11 +6,11 @@ export function TitleBar() {
     <header className="titlebar-drag flex h-11 shrink-0 items-center justify-between border-b border-white/[0.07] bg-ink-950/[0.68] px-3 backdrop-blur-xl">
       <div className="flex items-center gap-3">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-aurora-cyan/30 bg-aurora-cyan/[0.15] text-xs font-bold text-aurora-cyan shadow-glow">
-          B
+          N
         </div>
         <div>
-          <div className="text-sm font-semibold text-white">BROWSER</div>
-          <div className="text-[11px] text-white/40">AI-first workspace browser</div>
+          <div className="text-sm font-semibold text-white">Noema</div>
+          <div className="text-[11px] text-white/40">Browse with a mind beside you</div>
         </div>
       </div>
       <div className="no-drag flex items-center gap-1">

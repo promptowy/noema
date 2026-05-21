@@ -26,10 +26,10 @@ export function StartPage({ history, onNavigate, onOpenAi }: StartPageProps) {
         <section className="max-w-3xl">
           <Badge>New tab</Badge>
           <h1 className="mt-5 max-w-3xl text-5xl font-semibold leading-tight text-white">
-            Search, open, and ask the page what matters.
+            Browse with a mind beside you.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-white/[0.58]">
-            A calm command surface for web research, task extraction, and focused browsing.
+            Gather pages, searches and notes into context you can understand and continue.
           </p>
         </section>
 
@@ -80,20 +80,20 @@ export function StartPage({ history, onNavigate, onOpenAi }: StartPageProps) {
           <section className="rounded-2xl border border-aurora-cyan/[0.18] bg-aurora-cyan/[0.07] p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/[0.54]">
-                AI Assistant
+                Noema
               </h2>
               <Bot className="text-aurora-cyan" size={18} />
             </div>
             <p className="text-sm leading-6 text-white/[0.62]">
-              Open the assistant beside any page to summarize, explain, or turn research into tasks.
+              Keep a quiet layer of context beside the page, ready when the thread needs clarity.
             </p>
             <div className="mt-5 grid gap-2">
-              <TeaserAction icon={<FileText size={15} />} label="Summarize the page" />
-              <TeaserAction icon={<ListTodo size={15} />} label="Extract next actions" />
-              <TeaserAction icon={<Zap size={15} />} label="Explain complex sections" />
+              <TeaserAction icon={<FileText size={15} />} label="Clarify the page" />
+              <TeaserAction icon={<ListTodo size={15} />} label="Hold the thread" />
+              <TeaserAction icon={<Zap size={15} />} label="Surface what matters" />
             </div>
             <Button className="mt-5 w-full" tone="primary" onClick={onOpenAi}>
-              Open assistant
+              Open Noema
             </Button>
           </section>
         </div>
@@ -122,7 +122,7 @@ export function StartPage({ history, onNavigate, onOpenAi }: StartPageProps) {
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-white/[0.12] px-4 py-8 text-center text-sm text-white/[0.42]">
-              Your recent research trail will appear here.
+              The thread of your recent work will appear here.
             </div>
           )}
         </section>

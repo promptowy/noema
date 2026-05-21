@@ -1,365 +1,353 @@
 import {
   ArrowRight,
-  Bot,
   Brain,
-  Check,
   ChevronRight,
+  Command,
   EyeOff,
   Layers,
-  Lock,
-  PanelLeft,
+  PanelRight,
   Search,
-  Sparkles,
-  Star,
-  Zap
+  Shield,
+  Sparkles
 } from "lucide-react";
-import { Badge, Button, SectionEyebrow } from "@browser/ui";
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
+
+const navItems = [
+  ["Product", "#product"],
+  ["Intelligence", "#intelligence"],
+  ["Privacy", "#privacy"],
+  ["Waitlist", "#waitlist"]
+];
 
 const features = [
   {
-    icon: Bot,
-    title: "AI sidebar",
-    copy: "A contextual assistant sits beside the page, ready to summarize, explain, and extract next steps."
-  },
-  {
-    icon: PanelLeft,
-    title: "Vertical workspaces",
-    copy: "Tabs, bookmarks, history, and settings live in a calm left rail built for deep research sessions."
-  },
-  {
-    icon: EyeOff,
-    title: "Focus mode",
-    copy: "Quiet chrome and dense navigation surfaces keep the active page at the center of attention."
+    icon: PanelRight,
+    title: "AI beside the page",
+    copy: "Ask from the edge of the page without breaking your reading flow."
   },
   {
     icon: Layers,
-    title: "Smart tabs",
-    copy: "Each tab tracks title, URL, loading state, navigation controls, and local session persistence."
+    title: "Workspaces that remember",
+    copy: "Keep tabs, sources and decisions together around the work they belong to."
   },
   {
-    icon: Lock,
-    title: "Privacy-first design",
-    copy: "Remote web content runs without Node.js integration, with a narrow typed bridge for app controls."
+    icon: Brain,
+    title: "Tabs with context",
+    copy: "Noema treats each tab as part of a thread, not an isolated rectangle."
+  },
+  {
+    icon: Command,
+    title: "Command-first navigation",
+    copy: "Open, search and move with a single quiet command surface."
+  },
+  {
+    icon: Shield,
+    title: "Calm privacy defaults",
+    copy: "The assistant is designed around deliberate context, not silent surveillance."
+  },
+  {
+    icon: EyeOff,
+    title: "Designed for deep work",
+    copy: "A restrained interface that lets the web recede and the work come forward."
   }
 ];
 
-const comparisons = [
-  ["Context-aware AI", "Built into the browsing surface", "Bolted on or extension-only"],
-  ["Workspace model", "Vertical, persistent, research-oriented", "Tab strip first"],
-  ["Task extraction", "Designed as a first-class action", "Manual copy and paste"],
-  ["Security posture", "Typed bridge, isolated remote content", "Varies by extension"],
-  ["Desktop feel", "Custom title bar and native shell", "Standard browser frame"]
+const workflow = [
+  {
+    step: "01",
+    title: "Open anything",
+    copy: "Start with a page, a search, a document, or a question."
+  },
+  {
+    step: "02",
+    title: "Ask with context",
+    copy: "Noema keeps the relevant page and workspace in view while you ask."
+  },
+  {
+    step: "03",
+    title: "Save the thread of thought",
+    copy: "Carry forward the reasoning, comparisons and decisions behind the tabs."
+  }
+];
+
+const comparison = [
+  ["Tabs", "tabs become workspaces"],
+  ["Pages", "pages become context"],
+  ["Search", "search becomes synthesis"],
+  ["History", "history becomes memory"]
 ];
 
 const faqs = [
   {
-    question: "Is BROWSER a real Electron app?",
+    question: "Is Noema a Chrome replacement?",
     answer:
-      "Yes. The desktop app uses Electron, React, Vite, Tailwind CSS, and WebContentsView for embedded web pages."
+      "Noema is being built as a focused desktop browser for research-heavy work. It can become your primary browser for that work, but the first beta is intentionally narrower."
   },
   {
-    question: "Does the MVP include a live AI model?",
+    question: "Does the AI read every page?",
     answer:
-      "The UI includes a ready assistant surface with mock actions. The next step is wiring it to the model provider of your choice."
+      "No. The product direction is deliberate context: the assistant should work from the page or workspace you choose, with clear controls around what is used."
   },
   {
-    question: "Where is browser data stored?",
+    question: "Will it support extensions?",
     answer:
-      "Tabs, bookmarks, history, and basic settings are saved locally in a simple JSON store under Electron user data."
+      "Extension support is planned for later exploration. The first priority is a secure, calm browser core and a useful context layer."
   },
   {
-    question: "Can the landing page be deployed separately?",
+    question: "Is Noema private?",
     answer:
-      "Yes. It is a standalone Next.js App Router app in the same pnpm workspace."
+      "Privacy is a foundation of the product. Remote pages run in an isolated browser view, and assistant access is intended to be explicit and understandable."
+  },
+  {
+    question: "When is beta access available?",
+    answer:
+      "Noema is preparing for a private beta with builders, researchers and teams. Waitlist members will receive early access invitations first."
   }
 ];
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-ink-950 text-white">
-      <Nav />
+    <main className="min-h-screen overflow-hidden bg-[#070604] text-[#f5efe3]">
+      <Navigation />
       <Hero />
-      <MockupSection />
-      <FeatureSection />
-      <ComparisonSection />
-      <WaitlistSection />
-      <PricingSection />
-      <FaqSection />
+      <Philosophy />
+      <FeatureGrid />
+      <Workflow />
+      <Comparison />
+      <Waitlist />
+      <FAQ />
       <Footer />
     </main>
   );
 }
 
-function Nav() {
+function Navigation() {
   return (
-    <nav className="sticky top-0 z-40 border-b border-white/10 bg-ink-950/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
-        <a className="flex items-center gap-3" href="#">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-aurora-cyan text-sm font-black text-ink-950 shadow-glow">
-            B
-          </span>
-          <span className="font-semibold tracking-wide">BROWSER</span>
+    <header className="sticky top-0 z-50 border-b border-[#e8d9b5]/[0.08] bg-[#070604]/[0.88] backdrop-blur-xl">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5">
+        <a className="font-serif text-xl tracking-[0.03em] text-[#fff8eb]" href="#">
+          Noema
         </a>
-        <div className="hidden items-center gap-6 text-sm text-white/[0.58] md:flex">
-          <a className="transition hover:text-white" href="#features">
-            Features
-          </a>
-          <a className="transition hover:text-white" href="#compare">
-            Compare
-          </a>
-          <a className="transition hover:text-white" href="#pricing">
-            Pricing
-          </a>
-          <a className="transition hover:text-white" href="#faq">
-            FAQ
-          </a>
+        <div className="hidden items-center gap-8 text-sm text-[#d8cbb3]/[0.62] md:flex">
+          {navItems.map(([label, href]) => (
+            <a className="transition duration-200 hover:text-[#fff8eb]" href={href} key={label}>
+              {label}
+            </a>
+          ))}
         </div>
-        <Button className="h-9 px-3" tone="primary">
-          Join waitlist
-        </Button>
-      </div>
-    </nav>
+        <a
+          className="rounded-full border border-[#d8b56d]/[0.30] bg-[#d8b56d]/[0.10] px-4 py-2 text-sm font-medium text-[#fff2d2] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition duration-200 hover:-translate-y-px hover:border-[#d8b56d]/[0.55] hover:bg-[#d8b56d]/[0.16]"
+          href="#waitlist"
+        >
+          Request access
+        </a>
+      </nav>
+    </header>
   );
 }
 
 function Hero() {
   return (
-    <section className="relative min-h-[82svh] border-b border-white/10">
-      <HeroScene />
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col px-5 pb-20 pt-20 sm:pt-28">
-        <Badge className="mb-6 w-fit">Premium desktop browser for AI-native work</Badge>
-        <h1 className="max-w-4xl text-6xl font-semibold leading-none text-white sm:text-7xl lg:text-8xl">
-          BROWSER
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-white/[0.68] sm:text-xl">
-          An AI-first desktop browser with vertical workspaces, smart tabs, and a page-aware
-          assistant designed for deep research.
-        </p>
-        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-          <Button className="h-12 px-5" tone="primary">
-            Join the waitlist
-            <ArrowRight size={17} />
-          </Button>
-          <Button className="h-12 px-5" tone="secondary">
-            View the app shell
-            <ChevronRight size={17} />
-          </Button>
+    <section className="relative border-b border-[#e8d9b5]/[0.08] bg-[linear-gradient(180deg,#090704_0%,#070604_58%,#0a0806_100%)] px-5 py-14 sm:py-18 lg:min-h-[calc(100svh-64px)] lg:py-16">
+      <div className="mx-auto grid min-h-full max-w-7xl gap-12 lg:grid-cols-[0.84fr_1.16fr] lg:items-center">
+        <div className="pt-2 lg:pt-0">
+          <Eyebrow>AI-native browser</Eyebrow>
+          <h1 className="mt-5 max-w-3xl text-balance font-serif text-5xl leading-[1.02] text-[#fff8eb] md:text-7xl">
+            Browse with a mind beside you.
+          </h1>
+          <p className="mt-6 max-w-xl text-pretty text-lg leading-8 text-[#d8cbb3]/[0.74]">
+            Noema turns scattered tabs, pages and searches into context you can understand,
+            organize and act on.
+          </p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <PrimaryLink href="#waitlist">
+              Request early access
+              <ArrowRight size={16} />
+            </PrimaryLink>
+            <SecondaryLink href="#product">
+              See the interface
+              <ChevronRight size={16} />
+            </SecondaryLink>
+          </div>
         </div>
-        <div className="mt-12 grid max-w-3xl gap-3 sm:grid-cols-3">
-          {["WebContentsView browser core", "Typed secure preload bridge", "Local session persistence"].map(
-            (item) => (
-              <div
-                className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-white/[0.62]"
-                key={item}
-              >
-                <Check className="text-aurora-cyan" size={15} />
-                {item}
-              </div>
-            )
-          )}
+        <div className="lg:translate-y-3">
+          <NoemaMockup />
         </div>
       </div>
     </section>
   );
 }
 
-function HeroScene() {
+function NoemaMockup() {
   return (
-    <div className="absolute inset-0 overflow-hidden bg-ink-950">
-      <div className="absolute inset-x-0 top-10 mx-auto h-[520px] max-w-6xl rounded-[32px] border border-white/10 bg-ink-900/70 shadow-panel backdrop-blur-xl" />
-      <div className="absolute left-1/2 top-24 h-[420px] w-[900px] -translate-x-1/2 rounded-3xl border border-white/10 bg-ink-850/[0.92] shadow-glow">
-        <div className="flex h-full overflow-hidden rounded-3xl">
-          <div className="w-24 border-r border-white/10 bg-ink-950/[0.82] p-4">
-            <div className="mb-8 h-10 w-10 rounded-xl bg-aurora-cyan" />
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, index) => (
+    <div
+      className="relative mx-auto w-full max-w-3xl rounded-[30px] border border-[#e8d9b5]/[0.16] bg-[#0b0907] p-2.5 shadow-[0_34px_120px_rgba(0,0,0,0.62)]"
+      id="product"
+    >
+      <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#f4d48a]/[0.45] to-transparent" />
+      <div className="overflow-hidden rounded-[24px] border border-[#e8d9b5]/[0.10] bg-[#0f0d0a] shadow-[inset_0_1px_0_rgba(255,248,235,0.04)]">
+        <div className="flex h-14 items-center gap-3 border-b border-[#e8d9b5]/[0.09] bg-[#15110d] px-4">
+          <div className="flex gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#7a4635]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#b98c45]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#7c765d]" />
+          </div>
+          <div className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-full border border-[#e8d9b5]/[0.12] bg-[#070604] px-4 text-sm text-[#d8cbb3]/[0.55] shadow-[inset_0_1px_0_rgba(255,248,235,0.035)]">
+            <Search className="shrink-0 text-[#d8b56d]" size={15} />
+            <span className="truncate">Search, open, or ask Noema</span>
+          </div>
+        </div>
+        <div className="grid min-h-[520px] grid-cols-1 md:grid-cols-[190px_1fr] lg:grid-cols-[190px_1fr_250px]">
+          <aside className="border-b border-[#e8d9b5]/[0.10] bg-[#0a0806] p-4 md:border-b-0 md:border-r">
+            <div className="mb-5 rounded-2xl border border-[#d8b56d]/[0.20] bg-[#d8b56d]/[0.08] p-3">
+              <div className="text-xs uppercase tracking-[0.22em] text-[#d8b56d]">Workspace</div>
+              <div className="mt-2 text-sm font-medium text-[#fff8eb]">Market landscape</div>
+              <div className="mt-1 text-xs text-[#d8cbb3]/[0.45]">12 sources, 4 notes</div>
+            </div>
+            <div className="space-y-2">
+              {[
+                ["The changing search layer", "active"],
+                ["Browser security notes", ""],
+                ["Competitor brief", ""],
+                ["Open questions", ""]
+              ].map(([label, state]) => (
                 <div
-                  className="h-10 rounded-xl border border-white/[0.08] bg-white/[0.06]"
-                  key={index}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-1 flex-col">
-            <div className="flex h-16 items-center gap-3 border-b border-white/10 px-5">
-              <div className="flex gap-2">
-                <span className="h-3 w-3 rounded-full bg-aurora-rose" />
-                <span className="h-3 w-3 rounded-full bg-aurora-amber" />
-                <span className="h-3 w-3 rounded-full bg-aurora-cyan" />
-              </div>
-              <div className="flex h-10 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] px-4 text-sm text-white/40">
-                <Search size={16} />
-                Search Google or enter a URL
-              </div>
-            </div>
-            <div className="grid flex-1 grid-cols-[1fr_260px]">
-              <div className="p-6">
-                <div className="mb-5 h-24 rounded-2xl border border-white/10 bg-white/[0.06]" />
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="h-28 rounded-2xl border border-white/10 bg-aurora-cyan/[0.09]" />
-                  <div className="h-28 rounded-2xl border border-white/10 bg-aurora-violet/[0.09]" />
-                  <div className="h-28 rounded-2xl border border-white/10 bg-white/[0.05]" />
-                  <div className="h-28 rounded-2xl border border-white/10 bg-aurora-rose/[0.08]" />
-                </div>
-              </div>
-              <div className="border-l border-white/10 bg-ink-950/[0.76] p-5">
-                <div className="mb-5 flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-aurora-cyan text-ink-950">
-                    <Bot size={18} />
-                  </span>
-                  <span className="text-sm font-semibold">Assistant</span>
-                </div>
-                <div className="space-y-3">
-                  {["Summarize", "Extract tasks", "Explain page"].map((item) => (
-                    <div
-                      className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-3 text-sm text-white/[0.68]"
-                      key={item}
-                    >
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-ink-950/30 to-ink-950" />
-    </div>
-  );
-}
-
-function MockupSection() {
-  return (
-    <section className="border-b border-white/10 bg-ink-900 px-5 py-20">
-      <div className="mx-auto max-w-7xl">
-        <SectionEyebrow>Product Preview</SectionEyebrow>
-        <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-          <div>
-            <h2 className="max-w-3xl text-4xl font-semibold text-white">
-              A desktop browser shell built around the assistant.
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/[0.58]">
-              The MVP combines a native Electron window, a custom command bar, persistent tabs,
-              and a responsive AI panel.
-            </p>
-          </div>
-          <Button tone="secondary">
-            Explore features
-            <ArrowRight size={16} />
-          </Button>
-        </div>
-        <BrowserMockup />
-      </div>
-    </section>
-  );
-}
-
-function BrowserMockup() {
-  return (
-    <div className="overflow-hidden rounded-[28px] border border-white/[0.12] bg-ink-950 shadow-panel">
-      <div className="flex h-14 items-center gap-3 border-b border-white/10 bg-white/[0.04] px-5">
-        <span className="h-3 w-3 rounded-full bg-aurora-rose" />
-        <span className="h-3 w-3 rounded-full bg-aurora-amber" />
-        <span className="h-3 w-3 rounded-full bg-aurora-cyan" />
-        <div className="ml-3 flex h-9 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.06] px-3 text-sm text-white/[0.45]">
-          <Search size={15} />
-          browser://workspace/research
-        </div>
-      </div>
-      <div className="grid min-h-[520px] grid-cols-1 lg:grid-cols-[260px_1fr_320px]">
-        <aside className="border-b border-white/10 bg-ink-950/80 p-4 lg:border-b-0 lg:border-r">
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-3">
-            <Sparkles className="text-aurora-cyan" size={18} />
-            <div>
-              <div className="text-sm font-semibold">Research Space</div>
-              <div className="text-xs text-white/40">5 active tabs</div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            {["AI browser architecture", "Electron security notes", "Design inspiration"].map(
-              (item, index) => (
-                <div
-                  className={`rounded-xl border p-3 text-sm ${
-                    index === 0
-                      ? "border-aurora-cyan/30 bg-aurora-cyan/10 text-white"
-                      : "border-white/10 bg-white/[0.04] text-white/[0.56]"
+                  className={`rounded-xl border px-3 py-3 text-sm transition duration-200 ${
+                    state === "active"
+                      ? "border-[#d8b56d]/[0.30] bg-[#d8b56d]/[0.10] text-[#fff8eb] shadow-[inset_2px_0_0_rgba(216,181,109,0.7)]"
+                      : "border-[#e8d9b5]/[0.08] bg-[#fff8eb]/[0.025] text-[#d8cbb3]/[0.55]"
                   }`}
-                  key={item}
+                  key={label}
                 >
-                  {item}
-                </div>
-              )
-            )}
-          </div>
-        </aside>
-        <section className="bg-ink-900 p-5">
-          <div className="h-full rounded-2xl border border-white/10 bg-white/[0.05] p-6">
-            <Badge>Start page</Badge>
-            <h3 className="mt-5 max-w-xl text-4xl font-semibold leading-tight">
-              Search, open, and ask the page what matters.
-            </h3>
-            <div className="mt-8 flex h-14 items-center gap-3 rounded-2xl border border-white/[0.12] bg-white/[0.08] px-4 text-white/[0.42]">
-              <Search className="text-aurora-cyan" size={20} />
-              Search Google or enter a URL
-            </div>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {["ChatGPT", "OpenAI", "GitHub", "Vercel"].map((item) => (
-                <div
-                  className="rounded-2xl border border-white/10 bg-white/[0.05] p-4"
-                  key={item}
-                >
-                  <div className="mb-4 h-10 w-10 rounded-xl bg-aurora-cyan/70" />
-                  <div className="font-medium">{item}</div>
-                  <div className="mt-1 text-sm text-white/40">Quick link</div>
+                  {label}
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-        <aside className="border-t border-white/10 bg-ink-950/[0.78] p-5 lg:border-l lg:border-t-0">
-          <div className="mb-5 flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-aurora-cyan text-ink-950">
-              <Brain size={18} />
-            </span>
-            <div>
-              <div className="text-sm font-semibold">Assistant</div>
-              <div className="text-xs text-white/40">Current page context</div>
-            </div>
-          </div>
-          <div className="space-y-3">
-            {["Summarize", "Extract tasks", "Explain page"].map((item) => (
-              <div
-                className="rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm"
-                key={item}
-              >
-                {item}
+          </aside>
+          <section className="bg-[#100d09] p-4">
+            <div className="h-full rounded-2xl border border-[#e8d9b5]/[0.10] bg-[#17130e] p-5 shadow-[inset_0_1px_0_rgba(255,248,235,0.035)]">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-[#d8b56d]">
+                    Current page
+                  </div>
+                  <h2 className="mt-2 max-w-md text-balance font-serif text-2xl leading-snug text-[#fff8eb]">
+                    Intelligence browsers and the new research layer
+                  </h2>
+                </div>
+                <div className="hidden rounded-full border border-[#e8d9b5]/[0.10] px-3 py-1 text-xs text-[#d8cbb3]/[0.50] sm:block">
+                  reading
+                </div>
               </div>
-            ))}
-          </div>
-        </aside>
+              <div className="mt-8 space-y-3">
+                <Line width="w-[92%]" />
+                <Line width="w-full" />
+                <Line width="w-[76%]" />
+              </div>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                <DetailCard label="Signal" value="Search is becoming synthesis." />
+                <DetailCard label="Risk" value="Context drifts across tabs." />
+              </div>
+              <div className="mt-8 rounded-2xl border border-[#e8d9b5]/[0.10] bg-[#0b0907] p-4 shadow-[inset_0_1px_0_rgba(255,248,235,0.035)]">
+                <div className="mb-3 flex items-center gap-2 text-sm text-[#fff8eb]">
+                  <Sparkles className="text-[#d8b56d]" size={15} />
+                  Saved thread
+                </div>
+                <p className="text-sm leading-6 text-[#d8cbb3]/[0.58]">
+                  Compare AI-native browsers by context retention, privacy posture and command
+                  speed.
+                </p>
+              </div>
+            </div>
+          </section>
+          <aside className="border-t border-[#e8d9b5]/[0.10] bg-[#0a0806] p-4 lg:border-l lg:border-t-0">
+            <div className="mb-5 flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#d8b56d]/[0.30] bg-[#d8b56d]/[0.10] text-[#d8b56d]">
+                <Brain size={17} />
+              </span>
+              <div>
+                <div className="text-sm font-medium text-[#fff8eb]">Noema</div>
+                <div className="text-xs text-[#d8cbb3]/[0.45]">beside this page</div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <AssistantNote title="Understands" copy="This page, the workspace and the thread." />
+              <AssistantNote title="Suggests" copy="Three sources worth comparing next." />
+              <AssistantNote title="Remembers" copy="Why this page mattered." />
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
 }
 
-function FeatureSection() {
+function Philosophy() {
   return (
-    <section className="border-b border-white/10 bg-ink-950 px-5 py-20" id="features">
+    <section className="border-b border-[#e8d9b5]/[0.08] bg-[#0a0806] px-5 py-24 md:py-28" id="intelligence">
+      <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.9fr_1.1fr]">
+        <Eyebrow>Philosophy</Eyebrow>
+        <div>
+          <h2 className="text-balance font-serif text-4xl leading-tight text-[#fff8eb] md:text-5xl">
+            The web is not short of information. It is short of context.
+          </h2>
+          <p className="mt-6 text-pretty text-lg leading-8 text-[#d8cbb3]/[0.70]">
+            Noema helps people research, compare, understand and continue work without losing the
+            thread. It is a browser for the moments when tabs become a question, pages become
+            evidence and search becomes a chain of thought.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeatureGrid() {
+  return (
+    <section className="border-b border-[#e8d9b5]/[0.08] px-5 py-24 md:py-28">
       <div className="mx-auto max-w-7xl">
-        <SectionEyebrow>Features</SectionEyebrow>
-        <h2 className="max-w-3xl text-4xl font-semibold text-white">
-          Built for people who research, decide, and ship from the web.
-        </h2>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-12 max-w-2xl">
+          <Eyebrow>Product</Eyebrow>
+          <h2 className="mt-4 text-balance font-serif text-4xl leading-tight text-[#fff8eb] md:text-5xl">
+            A quieter way to think through the web.
+          </h2>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
+            <FeatureCard key={feature.title} {...feature} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Workflow() {
+  return (
+    <section className="border-b border-[#e8d9b5]/[0.08] bg-[#0a0806] px-5 py-24 md:py-28">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <Eyebrow>Workflow</Eyebrow>
+            <h2 className="mt-4 max-w-2xl text-balance font-serif text-4xl leading-tight text-[#fff8eb] md:text-5xl">
+              Keep the thread intact from first page to final decision.
+            </h2>
+          </div>
+          <p className="max-w-md text-base leading-7 text-[#d8cbb3]/[0.62]">
+            Noema is built around continuation: the ability to leave, return and still understand
+            what mattered.
+          </p>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {workflow.map((item) => (
             <article
-              className="rounded-2xl border border-white/10 bg-white/[0.05] p-5"
-              key={feature.title}
+              className="rounded-3xl border border-[#e8d9b5]/[0.10] bg-[#fff8eb]/[0.025] p-6 transition duration-200 hover:border-[#d8b56d]/[0.24] hover:bg-[#fff8eb]/[0.035]"
+              key={item.step}
             >
-              <feature.icon className="mb-6 text-aurora-cyan" size={24} />
-              <h3 className="text-lg font-semibold">{feature.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-white/[0.56]">{feature.copy}</p>
+              <div className="text-sm text-[#d8b56d]">{item.step}</div>
+              <h3 className="mt-8 font-serif text-2xl text-[#fff8eb]">{item.title}</h3>
+              <p className="mt-4 text-sm leading-6 text-[#d8cbb3]/[0.62]">{item.copy}</p>
             </article>
           ))}
         </div>
@@ -368,28 +356,27 @@ function FeatureSection() {
   );
 }
 
-function ComparisonSection() {
+function Comparison() {
   return (
-    <section className="border-b border-white/10 bg-ink-900 px-5 py-20" id="compare">
-      <div className="mx-auto max-w-7xl">
-        <SectionEyebrow>Comparison</SectionEyebrow>
-        <h2 className="max-w-3xl text-4xl font-semibold">
-          Normal browsers browse. BROWSER helps you think through the page.
+    <section className="border-b border-[#e8d9b5]/[0.08] px-5 py-24 md:py-28">
+      <div className="mx-auto max-w-6xl">
+        <Eyebrow>Comparison</Eyebrow>
+        <h2 className="mt-4 max-w-3xl text-balance font-serif text-4xl leading-tight text-[#fff8eb] md:text-5xl">
+          Normal browser vs Noema
         </h2>
-        <div className="mt-10 overflow-hidden rounded-2xl border border-white/10">
-          <div className="grid grid-cols-3 bg-white/[0.08] px-5 py-4 text-sm font-semibold text-white">
-            <div>Capability</div>
-            <div>BROWSER</div>
-            <div>Normal browsers</div>
+        <div className="mt-12 overflow-hidden rounded-3xl border border-[#e8d9b5]/[0.10]">
+          <div className="grid grid-cols-1 bg-[#15110d] text-sm text-[#d8cbb3]/[0.65] md:grid-cols-2">
+            <div className="border-b border-[#e8d9b5]/[0.10] p-5 font-medium text-[#fff8eb] md:border-b-0 md:border-r">
+              Normal browser
+            </div>
+            <div className="p-5 font-medium text-[#fff8eb]">Noema</div>
           </div>
-          {comparisons.map(([capability, browser, normal]) => (
-            <div
-              className="grid grid-cols-3 border-t border-white/10 px-5 py-4 text-sm text-white/60"
-              key={capability}
-            >
-              <div className="font-medium text-white">{capability}</div>
-              <div>{browser}</div>
-              <div>{normal}</div>
+          {comparison.map(([normal, noema]) => (
+            <div className="grid grid-cols-1 border-t border-[#e8d9b5]/[0.10] md:grid-cols-2" key={normal}>
+              <div className="border-b border-[#e8d9b5]/[0.10] p-5 text-[#d8cbb3]/[0.55] md:border-b-0 md:border-r">
+                {normal}
+              </div>
+              <div className="p-5 text-[#fff8eb]">{noema}</div>
             </div>
           ))}
         </div>
@@ -398,91 +385,61 @@ function ComparisonSection() {
   );
 }
 
-function WaitlistSection() {
+function Waitlist() {
   return (
-    <section className="border-b border-white/10 bg-ink-950 px-5 py-20">
-      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+    <section className="border-b border-[#e8d9b5]/[0.08] bg-[#0a0806] px-5 py-24 md:py-28" id="waitlist">
+      <div className="mx-auto grid max-w-6xl gap-10 rounded-[36px] border border-[#d8b56d]/[0.20] bg-[linear-gradient(135deg,rgba(216,181,109,0.10),rgba(255,248,235,0.025)_42%,rgba(216,181,109,0.06))] p-6 shadow-[0_28px_90px_rgba(0,0,0,0.38)] md:grid-cols-[0.9fr_1.1fr] md:p-10 lg:p-12">
         <div>
-          <SectionEyebrow>Waitlist</SectionEyebrow>
-          <h2 className="max-w-xl text-4xl font-semibold">Get early access to the AI browser.</h2>
-          <p className="mt-4 max-w-xl text-base leading-7 text-white/[0.58]">
-            Join the list for preview builds, implementation notes, and release milestones.
+          <Eyebrow>Waitlist</Eyebrow>
+          <h2 className="mt-4 text-balance font-serif text-4xl leading-tight text-[#fff8eb] md:text-5xl">
+            Request early access.
+          </h2>
+          <p className="mt-5 max-w-lg text-base leading-7 text-[#d8cbb3]/[0.68]">
+            Private beta for builders, researchers and teams.
           </p>
         </div>
-        <form className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
+        <form className="self-end rounded-3xl border border-[#e8d9b5]/[0.12] bg-[#070604]/[0.78] p-3 shadow-[inset_0_1px_0_rgba(255,248,235,0.04)]">
           <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
             <input
-              className="h-12 rounded-xl border border-white/10 bg-ink-950 px-4 text-sm text-white outline-none placeholder:text-white/[0.35] focus:border-aurora-cyan/[0.45]"
+              className="h-[52px] min-h-[52px] rounded-2xl border border-[#e8d9b5]/[0.10] bg-[#0f0d0a] px-4 text-sm text-[#fff8eb] outline-none transition duration-200 placeholder:text-[#d8cbb3]/[0.38] focus:border-[#d8b56d]/[0.45] focus:bg-[#12100c]"
               placeholder="you@company.com"
               type="email"
             />
-            <Button className="h-12 px-5" tone="primary" type="submit">
-              Request access
-            </Button>
+            <button
+              className="inline-flex h-[52px] min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-[#d8b56d] px-5 text-sm font-medium text-[#0b0907] shadow-[0_10px_30px_rgba(216,181,109,0.16)] transition duration-200 hover:-translate-y-px hover:bg-[#f0d08a]"
+              type="submit"
+            >
+              Request early access
+              <ArrowRight size={15} />
+            </button>
           </div>
-          <p className="mt-3 text-xs text-white/[0.38]">
-            No spam. Product updates only.
-          </p>
         </form>
       </div>
     </section>
   );
 }
 
-function PricingSection() {
+function FAQ() {
   return (
-    <section className="border-b border-white/10 bg-ink-900 px-5 py-20" id="pricing">
-      <div className="mx-auto max-w-7xl">
-        <SectionEyebrow>Pricing</SectionEyebrow>
-        <div className="grid gap-4 lg:grid-cols-3">
-          {[
-            ["Personal", "For solo researchers", "$12"],
-            ["Team", "For shared workspaces", "$29"],
-            ["Enterprise", "For managed deployment", "Custom"]
-          ].map(([name, description, price], index) => (
-            <article
-              className={`rounded-2xl border p-6 ${
-                index === 1
-                  ? "border-aurora-cyan/[0.35] bg-aurora-cyan/[0.08]"
-                  : "border-white/10 bg-white/[0.05]"
-              }`}
-              key={name}
-            >
-              <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-xl font-semibold">{name}</h3>
-                {index === 1 ? <Star className="text-aurora-cyan" size={18} /> : null}
-              </div>
-              <p className="text-sm text-white/[0.52]">{description}</p>
-              <div className="mt-8 text-4xl font-semibold">{price}</div>
-              <p className="mt-2 text-sm text-white/[0.42]">Pricing placeholder</p>
-              <Button className="mt-8 w-full" tone={index === 1 ? "primary" : "secondary"}>
-                Join waitlist
-              </Button>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FaqSection() {
-  return (
-    <section className="border-b border-white/10 bg-ink-950 px-5 py-20" id="faq">
+    <section className="border-b border-[#e8d9b5]/[0.08] px-5 py-24 md:py-28" id="privacy">
       <div className="mx-auto max-w-4xl">
-        <SectionEyebrow>FAQ</SectionEyebrow>
-        <h2 className="text-4xl font-semibold">Questions before the first build?</h2>
+        <Eyebrow>FAQ</Eyebrow>
+        <h2 className="mt-4 text-balance font-serif text-4xl leading-tight text-[#fff8eb] md:text-5xl">
+          Questions before Noema opens.
+        </h2>
         <div className="mt-10 space-y-3">
           {faqs.map((faq) => (
             <details
-              className="group rounded-2xl border border-white/10 bg-white/[0.05] p-5"
+              className="group rounded-2xl border border-[#e8d9b5]/[0.10] bg-[#fff8eb]/[0.025] p-5 transition duration-200 hover:border-[#d8b56d]/[0.22]"
               key={faq.question}
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-base font-medium text-[#fff8eb]">
                 {faq.question}
-                <Zap className="text-aurora-cyan transition group-open:rotate-45" size={18} />
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#d8b56d]/[0.20] text-[#d8b56d] transition group-open:rotate-45">
+                  +
+                </span>
               </summary>
-              <p className="mt-4 text-sm leading-6 text-white/[0.56]">{faq.answer}</p>
+              <p className="mt-4 text-sm leading-7 text-[#d8cbb3]/[0.62]">{faq.answer}</p>
             </details>
           ))}
         </div>
@@ -493,17 +450,90 @@ function FaqSection() {
 
 function Footer() {
   return (
-    <footer className="bg-ink-950 px-5 py-10">
-      <div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 text-sm text-white/[0.45] md:flex-row md:items-center">
-        <div className="flex items-center gap-3 text-white">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-aurora-cyan text-xs font-black text-ink-950">
-            B
-          </span>
-          BROWSER
+    <footer className="px-5 py-10">
+      <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 border-t border-[#e8d9b5]/[0.08] pt-8 text-sm text-[#d8cbb3]/[0.50] md:flex-row md:items-center">
+        <div>
+          <div className="font-serif text-2xl text-[#fff8eb]">Noema</div>
+          <div className="mt-2">Browse with a mind beside you.</div>
         </div>
-        <div>AI-first browsing for focused work.</div>
-        <div>© 2026 BROWSER</div>
+        <div className="flex flex-wrap gap-5">
+          {["Product", "Privacy", "Updates", "Contact"].map((item) => (
+            <a className="transition duration-200 hover:text-[#fff8eb]" href="#" key={item}>
+              {item}
+            </a>
+          ))}
+        </div>
       </div>
     </footer>
+  );
+}
+
+function Eyebrow({ children }: { children: ReactNode }) {
+  return (
+    <div className="text-xs font-medium uppercase tracking-[0.24em] text-[#d8b56d]">
+      {children}
+    </div>
+  );
+}
+
+function PrimaryLink({ children, href }: { children: ReactNode; href: string }) {
+  return (
+    <a
+      className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#d8b56d] px-5 text-sm font-medium text-[#0b0907] shadow-[0_12px_34px_rgba(216,181,109,0.16)] transition duration-200 hover:-translate-y-px hover:bg-[#f0d08a]"
+      href={href}
+    >
+      {children}
+    </a>
+  );
+}
+
+function SecondaryLink({ children, href }: { children: ReactNode; href: string }) {
+  return (
+    <a
+      className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-[#e8d9b5]/[0.14] px-5 text-sm font-medium text-[#fff8eb] transition duration-200 hover:-translate-y-px hover:border-[#d8b56d]/[0.35] hover:bg-[#fff8eb]/[0.035]"
+      href={href}
+    >
+      {children}
+    </a>
+  );
+}
+
+function Line({ width }: { width: string }) {
+  return <div className={`h-2 rounded-full bg-[#d8cbb3]/[0.14] ${width}`} />;
+}
+
+function DetailCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[#e8d9b5]/[0.10] bg-[#fff8eb]/[0.025] p-4">
+      <div className="text-xs uppercase tracking-[0.18em] text-[#d8b56d]">{label}</div>
+      <div className="mt-3 text-sm leading-6 text-[#d8cbb3]/[0.68]">{value}</div>
+    </div>
+  );
+}
+
+function AssistantNote({ copy, title }: { copy: string; title: string }) {
+  return (
+    <div className="rounded-2xl border border-[#e8d9b5]/[0.10] bg-[#fff8eb]/[0.025] p-4 shadow-[inset_0_1px_0_rgba(255,248,235,0.025)]">
+      <div className="text-sm font-medium text-[#fff8eb]">{title}</div>
+      <p className="mt-2 text-sm leading-6 text-[#d8cbb3]/[0.55]">{copy}</p>
+    </div>
+  );
+}
+
+function FeatureCard({
+  copy,
+  icon: Icon,
+  title
+}: {
+  copy: string;
+  icon: LucideIcon;
+  title: string;
+}) {
+  return (
+    <article className="rounded-3xl border border-[#e8d9b5]/[0.10] bg-[#fff8eb]/[0.025] p-6 transition duration-200 hover:-translate-y-1 hover:border-[#d8b56d]/[0.25] hover:bg-[#fff8eb]/[0.035]">
+      <Icon className="text-[#d8b56d]" size={22} />
+      <h3 className="mt-8 font-serif text-2xl text-[#fff8eb]">{title}</h3>
+      <p className="mt-4 text-sm leading-7 text-[#d8cbb3]/[0.62]">{copy}</p>
+    </article>
   );
 }

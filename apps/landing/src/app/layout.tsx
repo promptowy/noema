@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BROWSER - AI-first desktop browser",
+  title: "Noema - Browse with a mind beside you",
   description:
-    "A premium AI-first desktop browser with vertical workspaces, smart tabs, and a context-aware assistant."
+    "Noema is an AI-native browser that turns scattered tabs, pages and searches into context you can understand, organize and act on."
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

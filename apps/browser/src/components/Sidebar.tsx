@@ -43,8 +43,8 @@ export function Sidebar({
             <Sparkles size={16} />
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-white">Research Space</span>
-            <span className="block truncate text-xs text-white/[0.45]">Personal workspace</span>
+            <span className="block truncate text-sm font-semibold text-white">Noema Space</span>
+            <span className="block truncate text-xs text-white/[0.45]">Thoughtful workspace</span>
           </span>
         </button>
       </div>

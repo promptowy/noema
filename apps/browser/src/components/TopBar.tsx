@@ -103,7 +103,7 @@ export function TopBar({
           <Shield size={15} />
           Secure
         </Button>
-        <IconButton label="AI assistant" selected={aiOpen} onClick={onToggleAi}>
+        <IconButton label="Noema assistant" selected={aiOpen} onClick={onToggleAi}>
           <Bot size={18} />
         </IconButton>
       </div>
