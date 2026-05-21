@@ -16,6 +16,7 @@ type ViewMode = "browser" | "bookmarks" | "history" | "settings";
 type SidebarProps = {
   activeTabId: string;
   sessionLabel: string;
+  sessionWorkspace: string;
   tabs: BrowserTab[];
   viewMode: ViewMode;
   onCreateTab: () => void;
@@ -27,6 +28,7 @@ type SidebarProps = {
 export function Sidebar({
   activeTabId,
   sessionLabel,
+  sessionWorkspace,
   tabs,
   viewMode,
   onCreateTab,
@@ -49,7 +51,7 @@ export function Sidebar({
               {sessionLabel}
             </span>
             <span className="block truncate text-xs text-[#f4ecdc]/[0.42]">
-              Browser session
+              {sessionWorkspace}
             </span>
           </span>
         </button>

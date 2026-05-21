@@ -19,6 +19,7 @@ type TopBarProps = {
   bookmarks: Bookmark[];
   aiOpen: boolean;
   sessionLabel: string;
+  sessionWorkspace: string;
   onSubmit: (input: string) => void;
   onBack: () => void;
   onBackToControl: () => void;
@@ -33,6 +34,7 @@ export function TopBar({
   bookmarks,
   aiOpen,
   sessionLabel,
+  sessionWorkspace,
   onSubmit,
   onBack,
   onBackToControl,
@@ -74,7 +76,7 @@ export function TopBar({
       </IconButton>
       <div className="hidden min-w-[128px] max-w-[190px] shrink-0 lg:block">
         <div className="truncate text-sm font-medium text-[#f4ecdc]">{sessionLabel}</div>
-        <div className="truncate text-xs text-[#f4ecdc]/[0.38]">Active profile</div>
+        <div className="truncate text-xs text-[#f4ecdc]/[0.38]">{sessionWorkspace}</div>
       </div>
       <div className="flex items-center gap-1 rounded-xl border border-[#e7c989]/[0.10] bg-black/[0.15] p-1">
         <IconButton

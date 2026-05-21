@@ -125,6 +125,7 @@ export default function App() {
         <Sidebar
           activeTabId={state.activeTabId}
           sessionLabel={selectedProfile?.name ?? "Noema Session"}
+          sessionWorkspace={selectedProfile?.workspace ?? "Personal workspace"}
           tabs={state.tabs}
           viewMode={viewMode}
           onCloseTab={(tabId) => window.browserAPI.closeTab(tabId)}
@@ -145,6 +146,7 @@ export default function App() {
             aiOpen={aiOpen}
             bookmarks={state.bookmarks}
             sessionLabel={selectedProfile?.name ?? "Noema Session"}
+            sessionWorkspace={selectedProfile?.workspace ?? "Personal workspace"}
             onBack={() => window.browserAPI.goBack()}
             onBackToControl={returnToControlCenter}
             onBookmark={() => window.browserAPI.toggleBookmark(activeTab?.id)}

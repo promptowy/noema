@@ -59,3 +59,26 @@ select {
   -webkit-app-region: no-drag;
   app-region: no-drag;
 }
+
+.field-input {
+  width: 100%;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(231, 201, 137, 0.14);
+  background: rgba(21, 18, 13, 0.72);
+  padding: 0 0.875rem;
+  min-height: 2.75rem;
+  color: #f4ecdc;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.field-input::placeholder {
+  color: rgba(244, 236, 220, 0.34);
+}
+
+.field-input:focus {
+  border-color: rgba(231, 201, 137, 0.42);
+  background: rgba(27, 23, 16, 0.9);
+}
