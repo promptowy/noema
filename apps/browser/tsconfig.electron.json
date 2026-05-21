@@ -1,0 +1,8 @@
+{
+  "extends": "@browser/config/tsconfig/node",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true
+  },
+  "include": ["electron", "vite.electron.config.ts"]
+}

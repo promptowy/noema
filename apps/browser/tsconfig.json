@@ -1,0 +1,12 @@
+{
+  "extends": "@browser/config/tsconfig/react",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "paths": {
+      "@browser/ui": ["../../packages/ui/src"]
+    },
+    "types": ["vite/client"]
+  },
+  "include": ["src", "tailwind.config.ts", "vite.renderer.config.ts"]
+}

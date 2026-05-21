@@ -1,0 +1,10 @@
+{
+  "extends": "@browser/config/tsconfig/react",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}

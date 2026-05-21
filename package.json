@@ -1,0 +1,22 @@
+{
+  "name": "browser",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.12.1",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @browser/desktop --filter @browser/landing dev",
+    "dev:browser": "pnpm --filter @browser/desktop dev",
+    "dev:landing": "pnpm --filter @browser/landing dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["electron", "esbuild", "sharp"]
+  },
+  "devDependencies": {
+    "eslint": "^9.28.0",
+    "typescript": "^5.8.3"
+  }
+}
