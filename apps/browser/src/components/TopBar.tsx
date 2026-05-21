@@ -18,8 +18,10 @@ type TopBarProps = {
   activeTab: BrowserTab | undefined;
   bookmarks: Bookmark[];
   aiOpen: boolean;
+  sessionLabel: string;
   onSubmit: (input: string) => void;
   onBack: () => void;
+  onBackToControl: () => void;
   onForward: () => void;
   onReload: () => void;
   onBookmark: () => void;
@@ -30,8 +32,10 @@ export function TopBar({
   activeTab,
   bookmarks,
   aiOpen,
+  sessionLabel,
   onSubmit,
   onBack,
+  onBackToControl,
   onForward,
   onReload,
   onBookmark,
@@ -53,6 +57,25 @@ export function TopBar({
 
   return (
     <div className="flex h-[68px] shrink-0 items-center gap-3 border-b border-[#e7c989]/[0.10] bg-[#0b0907]/[0.78] px-4 backdrop-blur-2xl">
+      <Button
+        className="hidden h-10 shrink-0 border-[#e7c989]/[0.12] px-3 text-xs text-[#f4ecdc]/[0.62] hover:bg-[#f4ecdc]/[0.06] hover:text-[#f4ecdc] lg:inline-flex"
+        tone="ghost"
+        onClick={onBackToControl}
+      >
+        <ChevronLeft size={15} />
+        Control Center
+      </Button>
+      <IconButton
+        className="h-10 w-10 hover:bg-[#f4ecdc]/[0.08] lg:hidden"
+        label="Back to Control Center"
+        onClick={onBackToControl}
+      >
+        <ChevronLeft size={17} />
+      </IconButton>
+      <div className="hidden min-w-[128px] max-w-[190px] shrink-0 lg:block">
+        <div className="truncate text-sm font-medium text-[#f4ecdc]">{sessionLabel}</div>
+        <div className="truncate text-xs text-[#f4ecdc]/[0.38]">Active profile</div>
+      </div>
       <div className="flex items-center gap-1 rounded-xl border border-[#e7c989]/[0.10] bg-black/[0.15] p-1">
         <IconButton
           className="h-8 w-8 rounded-lg hover:bg-[#f4ecdc]/[0.08]"

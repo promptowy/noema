@@ -15,6 +15,7 @@ type ViewMode = "browser" | "bookmarks" | "history" | "settings";
 
 type SidebarProps = {
   activeTabId: string;
+  sessionLabel: string;
   tabs: BrowserTab[];
   viewMode: ViewMode;
   onCreateTab: () => void;
@@ -25,6 +26,7 @@ type SidebarProps = {
 
 export function Sidebar({
   activeTabId,
+  sessionLabel,
   tabs,
   viewMode,
   onCreateTab,
@@ -43,8 +45,12 @@ export function Sidebar({
             <Sparkles size={16} />
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-[#f4ecdc]">Research Space</span>
-            <span className="block truncate text-xs text-[#f4ecdc]/[0.42]">Local context and tabs</span>
+            <span className="block truncate text-sm font-semibold text-[#f4ecdc]">
+              {sessionLabel}
+            </span>
+            <span className="block truncate text-xs text-[#f4ecdc]/[0.42]">
+              Browser session
+            </span>
           </span>
         </button>
       </div>

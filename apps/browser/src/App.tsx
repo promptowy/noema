@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { AppState } from "../electron/types";
 import { AssistantPanel } from "./components/AssistantPanel";
 import { BookmarksPage, HistoryPage, SettingsPage } from "./components/LibraryPages";
+import { ControlCenter } from "./components/ControlCenter";
+import type { ControlProfile } from "./components/ControlCenter";
 import { Sidebar } from "./components/Sidebar";
 import { StartPage } from "./components/StartPage";
 import { TitleBar } from "./components/TitleBar";
@@ -9,13 +11,16 @@ import { TopBar } from "./components/TopBar";
 import { isInternalUrl, isNewTab } from "./lib/browser";
 
 type ViewMode = "browser" | "bookmarks" | "history" | "settings";
+type AppMode = "control" | "session";
 
 const hiddenBounds = { x: 0, y: 0, width: 0, height: 0 };
 
 export default function App() {
   const [state, setState] = useState<AppState | null>(null);
+  const [appMode, setAppMode] = useState<AppMode>("control");
   const [viewMode, setViewMode] = useState<ViewMode>("browser");
   const [aiOpen, setAiOpen] = useState(true);
+  const [selectedProfile, setSelectedProfile] = useState<ControlProfile | null>(null);
   const webSlotRef = useRef<HTMLDivElement | null>(null);
 
   const activeTab = useMemo(
@@ -24,7 +29,10 @@ export default function App() {
   );
 
   const showWebContent =
-    viewMode === "browser" && Boolean(activeTab) && !isInternalUrl(activeTab?.url ?? "");
+    appMode === "session" &&
+    viewMode === "browser" &&
+    Boolean(activeTab) &&
+    !isInternalUrl(activeTab?.url ?? "");
 
   useEffect(() => {
     let disposed = false;
@@ -78,7 +86,7 @@ export default function App() {
       window.removeEventListener("resize", syncBounds);
       window.browserAPI.setContentBounds(hiddenBounds);
     };
-  }, [activeTab?.id, aiOpen, showWebContent, viewMode]);
+  }, [activeTab?.id, aiOpen, appMode, showWebContent, viewMode]);
 
   if (!state) {
     return (
@@ -91,16 +99,32 @@ export default function App() {
   }
 
   function navigate(input: string) {
+    setAppMode("session");
     setViewMode("browser");
     window.browserAPI.navigate({ input });
+  }
+
+  function openSession(profile: ControlProfile) {
+    setSelectedProfile(profile);
+    setAppMode("session");
+    setViewMode("browser");
+  }
+
+  function returnToControlCenter() {
+    setAppMode("control");
+    window.browserAPI.setContentBounds(hiddenBounds);
   }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_28%_-10%,rgba(231,201,137,0.13),transparent_34%),linear-gradient(135deg,#050403_0%,#0b0907_46%,#050504_100%)] text-[#f4ecdc]">
       <TitleBar />
-      <div className="flex min-h-0 flex-1">
+      {appMode === "control" ? (
+        <ControlCenter onStartProfile={openSession} />
+      ) : (
+        <div className="flex min-h-0 flex-1">
         <Sidebar
           activeTabId={state.activeTabId}
+          sessionLabel={selectedProfile?.name ?? "Noema Session"}
           tabs={state.tabs}
           viewMode={viewMode}
           onCloseTab={(tabId) => window.browserAPI.closeTab(tabId)}
@@ -120,7 +144,9 @@ export default function App() {
             activeTab={activeTab}
             aiOpen={aiOpen}
             bookmarks={state.bookmarks}
+            sessionLabel={selectedProfile?.name ?? "Noema Session"}
             onBack={() => window.browserAPI.goBack()}
+            onBackToControl={returnToControlCenter}
             onBookmark={() => window.browserAPI.toggleBookmark(activeTab?.id)}
             onForward={() => window.browserAPI.goForward()}
             onReload={() => window.browserAPI.reload()}
@@ -168,6 +194,7 @@ export default function App() {
           </div>
         </main>
       </div>
+      )}
     </div>
   );
 }
