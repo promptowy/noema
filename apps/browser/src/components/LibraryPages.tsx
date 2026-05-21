@@ -1,6 +1,5 @@
 import { Bookmark, ExternalLink, History, Search, Settings, Shield } from "lucide-react";
 import type { ReactNode } from "react";
-import { SectionEyebrow } from "@browser/ui";
 import type {
   AppState,
   Bookmark as BookmarkType,
@@ -23,26 +22,26 @@ export function BookmarksPage({
   onNavigate: (url: string) => void;
 }) {
   return (
-    <Surface icon={<Bookmark size={20} />} title="Bookmarks" subtitle="Pinned pages live here.">
+    <Surface icon={<Bookmark size={20} />} title="Bookmarks" subtitle="Useful pages, kept close.">
       {bookmarks.length > 0 ? (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {bookmarks.map((bookmark) => (
             <button
               key={bookmark.id}
-              className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-left transition hover:border-white/[0.18] hover:bg-white/[0.08]"
+              className="rounded-2xl border border-[#e7c989]/[0.10] bg-[#f4ecdc]/[0.04] p-4 text-left transition hover:border-[#e7c989]/[0.22] hover:bg-[#f4ecdc]/[0.065]"
               type="button"
               onClick={() => onNavigate(bookmark.url)}
             >
               <div className="flex items-center justify-between gap-3">
-                <div className="truncate text-sm font-semibold text-white">{bookmark.title}</div>
-                <ExternalLink className="shrink-0 text-white/[0.32]" size={15} />
+                <div className="truncate text-sm font-semibold text-[#f4ecdc]">{bookmark.title}</div>
+                <ExternalLink className="shrink-0 text-[#f4ecdc]/[0.32]" size={15} />
               </div>
-              <div className="mt-2 truncate text-xs text-white/[0.42]">{bookmark.url}</div>
+              <div className="mt-2 truncate text-xs text-[#f4ecdc]/[0.42]">{bookmark.url}</div>
             </button>
           ))}
         </div>
       ) : (
-        <EmptyState label="Bookmark useful pages from the address bar." />
+        <EmptyState label="Bookmark pages from the address bar when something is worth returning to." />
       )}
     </Surface>
   );
@@ -56,29 +55,29 @@ export function HistoryPage({
   onNavigate: (url: string) => void;
 }) {
   return (
-    <Surface icon={<History size={20} />} title="History" subtitle="A lightweight local trail.">
+    <Surface icon={<History size={20} />} title="History" subtitle="A local trail of the work.">
       {history.length > 0 ? (
         <div className="space-y-2">
           {history.map((entry) => (
             <button
               key={entry.id}
-              className="flex w-full items-center gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.08]"
+              className="flex w-full items-center gap-4 rounded-2xl border border-[#e7c989]/[0.10] bg-[#f4ecdc]/[0.035] p-4 text-left transition hover:border-[#e7c989]/[0.20] hover:bg-[#f4ecdc]/[0.06]"
               type="button"
               onClick={() => onNavigate(entry.url)}
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.07] text-aurora-cyan">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#e7c989]/[0.12] bg-[#e7c989]/[0.08] text-[#e7c989]">
                 <Search size={16} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-white">{entry.title}</span>
-                <span className="mt-1 block truncate text-xs text-white/40">{entry.url}</span>
+                <span className="block truncate text-sm font-medium text-[#f4ecdc]">{entry.title}</span>
+                <span className="mt-1 block truncate text-xs text-[#f4ecdc]/[0.40]">{entry.url}</span>
               </span>
-              <span className="shrink-0 text-xs text-white/[0.36]">{formatVisit(entry)}</span>
+              <span className="shrink-0 text-xs text-[#f4ecdc]/[0.36]">{formatVisit(entry)}</span>
             </button>
           ))}
         </div>
       ) : (
-        <EmptyState label="Pages you visit will be kept locally." />
+        <EmptyState label="Visited pages will appear here as a private local trail." />
       )}
     </Surface>
   );
@@ -89,7 +88,7 @@ export function SettingsPage({ state, onSettingsChange }: LibraryProps) {
     <Surface
       icon={<Settings size={20} />}
       title="Settings"
-      subtitle="Product placeholders with local persistence."
+      subtitle="Simple local preferences for this first build."
     >
       <div className="grid gap-4 lg:grid-cols-3">
         <SettingCard
@@ -97,7 +96,7 @@ export function SettingsPage({ state, onSettingsChange }: LibraryProps) {
           label="Default search engine"
         >
           <select
-            className="mt-4 h-10 w-full rounded-lg border border-white/10 bg-ink-800 px-3 text-sm text-white outline-none"
+            className="mt-4 h-10 w-full rounded-lg border border-[#e7c989]/[0.12] bg-[#15120d] px-3 text-sm text-[#f4ecdc] outline-none transition focus:border-[#e7c989]/[0.36]"
             value={state.settings.searchEngine}
             onChange={() => onSettingsChange({ searchEngine: "google" })}
           >
@@ -107,7 +106,7 @@ export function SettingsPage({ state, onSettingsChange }: LibraryProps) {
 
         <SettingCard description="The MVP ships with a premium dark theme." label="Theme">
           <select
-            className="mt-4 h-10 w-full rounded-lg border border-white/10 bg-ink-800 px-3 text-sm text-white outline-none"
+            className="mt-4 h-10 w-full rounded-lg border border-[#e7c989]/[0.12] bg-[#15120d] px-3 text-sm text-[#f4ecdc] outline-none transition focus:border-[#e7c989]/[0.36]"
             value={state.settings.theme}
             onChange={(event) =>
               onSettingsChange({ theme: event.currentTarget.value as "dark" | "system" })
@@ -125,8 +124,8 @@ export function SettingsPage({ state, onSettingsChange }: LibraryProps) {
           <button
             className={`mt-4 flex h-10 w-full items-center justify-between rounded-lg border px-3 text-sm transition ${
               state.settings.privacyMode
-                ? "border-aurora-cyan/40 bg-aurora-cyan/10 text-white"
-                : "border-white/10 bg-white/[0.05] text-white/[0.62]"
+                ? "border-[#e7c989]/[0.40] bg-[#e7c989]/[0.10] text-[#f4ecdc]"
+                : "border-[#e7c989]/[0.12] bg-[#f4ecdc]/[0.04] text-[#f4ecdc]/[0.62] hover:border-[#e7c989]/[0.22]"
             }`}
             type="button"
             onClick={() => onSettingsChange({ privacyMode: !state.settings.privacyMode })}
@@ -152,16 +151,18 @@ function Surface({
   title: string;
 }) {
   return (
-    <div className="h-full overflow-y-auto px-8 py-8">
+    <div className="h-full overflow-y-auto px-6 py-8 lg:px-10">
       <div className="mx-auto max-w-6xl">
-        <SectionEyebrow>Noema</SectionEyebrow>
+        <div className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#e7c989]">
+          Noema
+        </div>
         <div className="mb-8 flex items-center gap-4">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.08] text-aurora-cyan">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e7c989]/[0.14] bg-[#e7c989]/[0.08] text-[#e7c989]">
             {icon}
           </span>
           <div>
-            <h1 className="text-3xl font-semibold text-white">{title}</h1>
-            <p className="mt-1 text-sm text-white/[0.48]">{subtitle}</p>
+            <h1 className="text-3xl font-semibold tracking-[-0.01em] text-[#f4ecdc]">{title}</h1>
+            <p className="mt-1 text-sm text-[#f4ecdc]/[0.48]">{subtitle}</p>
           </div>
         </div>
         {children}
@@ -180,9 +181,9 @@ function SettingCard({
   label: string;
 }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
-      <div className="text-sm font-semibold text-white">{label}</div>
-      <p className="mt-2 min-h-12 text-sm leading-6 text-white/[0.46]">{description}</p>
+    <section className="rounded-[22px] border border-[#e7c989]/[0.10] bg-[#100d09]/[0.58] p-5 shadow-[inset_0_1px_0_rgba(255,248,232,0.05)]">
+      <div className="text-sm font-semibold text-[#f4ecdc]">{label}</div>
+      <p className="mt-2 min-h-12 text-sm leading-6 text-[#f4ecdc]/[0.46]">{description}</p>
       {children}
     </section>
   );
@@ -190,7 +191,7 @@ function SettingCard({
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-white/[0.12] px-6 py-14 text-center text-sm text-white/[0.42]">
+    <div className="rounded-[22px] border border-dashed border-[#e7c989]/[0.14] bg-[#f4ecdc]/[0.025] px-6 py-14 text-center text-sm text-[#f4ecdc]/[0.42]">
       {label}
     </div>
   );

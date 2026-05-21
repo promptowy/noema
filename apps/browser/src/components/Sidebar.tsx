@@ -33,28 +33,28 @@ export function Sidebar({
   onViewModeChange
 }: SidebarProps) {
   return (
-    <aside className="flex h-full w-[282px] shrink-0 flex-col border-r border-white/[0.08] bg-ink-950/[0.74] backdrop-blur-2xl">
-      <div className="flex h-16 items-center gap-3 border-b border-white/[0.07] px-4">
+    <aside className="flex h-full w-[292px] shrink-0 flex-col border-r border-[#e7c989]/[0.10] bg-[#070604]/[0.82] backdrop-blur-2xl">
+      <div className="flex h-[68px] items-center gap-3 border-b border-[#e7c989]/[0.10] px-4">
         <button
-          className="flex h-10 flex-1 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.07] px-3 text-left transition hover:bg-white/[0.1]"
+          className="flex h-11 flex-1 items-center gap-3 rounded-[14px] border border-[#e7c989]/[0.12] bg-[#15120d]/[0.70] px-3 text-left shadow-[inset_0_1px_0_rgba(255,248,232,0.05)] transition duration-200 hover:border-[#e7c989]/[0.22] hover:bg-[#1b1710]"
           type="button"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-aurora-cyan text-ink-950">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#e7c989]/[0.25] bg-[#e7c989]/[0.12] text-[#e7c989]">
             <Sparkles size={16} />
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-white">Noema Space</span>
-            <span className="block truncate text-xs text-white/[0.45]">Thoughtful workspace</span>
+            <span className="block truncate text-sm font-semibold text-[#f4ecdc]">Research Space</span>
+            <span className="block truncate text-xs text-[#f4ecdc]/[0.42]">Local context and tabs</span>
           </span>
         </button>
       </div>
 
       <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/[0.36]">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#f4ecdc]/[0.36]">
           <Layers size={14} />
           Tabs
         </div>
-        <IconButton label="New tab" onClick={onCreateTab}>
+        <IconButton className="h-8 w-8 hover:bg-[#f4ecdc]/[0.08]" label="New tab" onClick={onCreateTab}>
           <Plus size={17} />
         </IconButton>
       </div>
@@ -63,23 +63,26 @@ export function Sidebar({
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`group flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
+            className={`group relative flex w-full items-center gap-3 rounded-[14px] border px-3 py-2.5 text-left transition duration-200 ${
               tab.id === activeTabId && viewMode === "browser"
-                ? "border-aurora-cyan/[0.26] bg-aurora-cyan/10 text-white"
-                : "border-transparent text-white/[0.62] hover:bg-white/[0.06] hover:text-white"
+                ? "border-[#e7c989]/[0.24] bg-[#e7c989]/[0.09] text-[#f4ecdc] shadow-[inset_0_1px_0_rgba(255,248,232,0.06)]"
+                : "border-transparent text-[#f4ecdc]/[0.58] hover:border-[#e7c989]/[0.10] hover:bg-[#f4ecdc]/[0.05] hover:text-[#f4ecdc]"
             }`}
             type="button"
             onClick={() => onSwitchTab(tab.id)}
           >
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/[0.08] text-white/[0.66]">
+            {tab.id === activeTabId && viewMode === "browser" ? (
+              <span className="absolute left-0 top-1/2 h-7 w-px -translate-y-1/2 bg-[#e7c989]" />
+            ) : null}
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#e7c989]/[0.10] bg-black/[0.20] text-[#e7c989]/[0.72]">
               {tab.isLoading ? <Sparkles size={14} /> : <Bot size={14} />}
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-medium">{tab.title || "Untitled"}</span>
-              <span className="block truncate text-xs text-white/[0.38]">{tab.url}</span>
+              <span className="block truncate text-xs text-[#f4ecdc]/[0.34]">{tab.url}</span>
             </span>
             <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-white/[0.35] opacity-0 transition hover:bg-white/[0.08] hover:text-white group-hover:opacity-100"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[#f4ecdc]/[0.32] opacity-0 transition hover:bg-[#f4ecdc]/[0.08] hover:text-[#f4ecdc] group-hover:opacity-100"
               onClick={(event) => {
                 event.stopPropagation();
                 onCloseTab(tab.id);
@@ -91,7 +94,7 @@ export function Sidebar({
         ))}
       </div>
 
-      <nav className="space-y-1 border-t border-white/[0.07] p-3">
+      <nav className="space-y-1 border-t border-[#e7c989]/[0.10] p-3">
         <SidebarAction
           icon={<Bookmark size={17} />}
           label="Bookmarks"
@@ -130,8 +133,8 @@ function SidebarAction({
     <button
       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
         selected
-          ? "bg-white/[0.1] text-white"
-          : "text-white/[0.58] hover:bg-white/[0.06] hover:text-white"
+          ? "border border-[#e7c989]/[0.16] bg-[#e7c989]/[0.09] text-[#f4ecdc]"
+          : "border border-transparent text-[#f4ecdc]/[0.56] hover:border-[#e7c989]/[0.10] hover:bg-[#f4ecdc]/[0.05] hover:text-[#f4ecdc]"
       }`}
       type="button"
       onClick={onClick}

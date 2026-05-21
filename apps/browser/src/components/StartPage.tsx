@@ -21,107 +21,115 @@ export function StartPage({ history, onNavigate, onOpenAi }: StartPageProps) {
   }
 
   return (
-    <div className="flex h-full overflow-y-auto px-8 py-10">
-      <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-8">
+    <div className="flex h-full overflow-y-auto px-6 py-8 lg:px-10 lg:py-10">
+      <div className="mx-auto flex w-full max-w-6xl flex-col justify-center gap-7">
         <section className="max-w-3xl">
-          <Badge>New tab</Badge>
-          <h1 className="mt-5 max-w-3xl text-5xl font-semibold leading-tight text-white">
+          <Badge className="border-[#e7c989]/[0.15] bg-[#e7c989]/[0.08] text-[#e7c989]">Noema</Badge>
+          <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-[#f4ecdc] md:text-5xl">
             Browse with a mind beside you.
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-white/[0.58]">
-            Gather pages, searches and notes into context you can understand and continue.
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[#f4ecdc]/[0.58]">
+            Open a page, gather the thread, and keep the next step close.
           </p>
         </section>
 
         <form
-          className="flex min-h-16 items-center gap-4 rounded-2xl border border-white/[0.12] bg-white/[0.08] px-5 shadow-panel backdrop-blur-xl focus-within:border-aurora-cyan/[0.45]"
+          className="flex min-h-16 items-center gap-4 rounded-[22px] border border-[#e7c989]/[0.14] bg-[#15120d]/[0.76] px-5 shadow-[inset_0_1px_0_rgba(255,248,232,0.07),0_28px_90px_rgba(0,0,0,0.34)] backdrop-blur-xl transition duration-200 hover:border-[#e7c989]/[0.24] focus-within:border-[#e7c989]/[0.48] focus-within:bg-[#1b1710]"
           onSubmit={handleSubmit}
         >
-          <Search className="shrink-0 text-aurora-cyan" size={24} />
+          <Search className="shrink-0 text-[#e7c989]" size={24} />
           <input
             autoFocus
-            className="h-16 min-w-0 flex-1 bg-transparent text-lg text-white outline-none placeholder:text-white/[0.38]"
-            placeholder="Search Google or enter a URL"
+            className="h-16 min-w-0 flex-1 bg-transparent text-lg text-[#f4ecdc] outline-none placeholder:text-[#f4ecdc]/[0.36]"
+            placeholder="Search, open, or ask Noema"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <Button className="h-11" tone="primary" type="submit">
+          <Button
+            className="h-11 border-[#e7c989]/[0.40] bg-[#e7c989] px-5 text-[#120f0a] shadow-[0_16px_44px_rgba(231,201,137,0.16)] hover:border-[#f4ecdc]/[0.40] hover:bg-[#f4ecdc]"
+            tone="primary"
+            type="submit"
+          >
             Open
           </Button>
         </form>
 
         <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-          <section className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
+          <section className="rounded-[22px] border border-[#e7c989]/[0.10] bg-[#100d09]/[0.62] p-5 shadow-[inset_0_1px_0_rgba(255,248,232,0.05)]">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/[0.46]">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#f4ecdc]/[0.42]">
                 Quick Links
               </h2>
-              <Sparkles className="text-aurora-cyan" size={17} />
+              <Sparkles className="text-[#e7c989]" size={17} />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {quickLinks.map((link) => (
                 <button
                   key={link.url}
-                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-4 text-left transition hover:border-white/[0.18] hover:bg-white/[0.1]"
+                  className="flex items-center gap-3 rounded-2xl border border-[#e7c989]/[0.10] bg-[#f4ecdc]/[0.045] p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-[#e7c989]/[0.22] hover:bg-[#f4ecdc]/[0.07]"
                   type="button"
                   onClick={() => onNavigate(link.url)}
                 >
-                  <span className={`h-10 w-10 rounded-xl bg-gradient-to-br ${link.accent}`} />
+                  <span className={`h-10 w-10 rounded-xl border border-[#f4ecdc]/[0.10] bg-gradient-to-br ${link.accent}`} />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium text-white">{link.title}</span>
-                    <span className="block truncate text-sm text-white/[0.42]">{link.url}</span>
+                    <span className="block truncate font-medium text-[#f4ecdc]">{link.title}</span>
+                    <span className="block truncate text-sm text-[#f4ecdc]/[0.40]">{link.url}</span>
                   </span>
-                  <ExternalLink className="text-white/[0.35]" size={15} />
+                  <ExternalLink className="text-[#f4ecdc]/[0.32]" size={15} />
                 </button>
               ))}
             </div>
           </section>
 
-          <section className="rounded-2xl border border-aurora-cyan/[0.18] bg-aurora-cyan/[0.07] p-5">
+          <section className="rounded-[22px] border border-[#e7c989]/[0.16] bg-[linear-gradient(145deg,rgba(231,201,137,0.10),rgba(244,236,220,0.04)_45%,rgba(0,0,0,0.12))] p-5 shadow-[inset_0_1px_0_rgba(255,248,232,0.08)]">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/[0.54]">
-                Noema
+              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#f4ecdc]/[0.54]">
+                Assistant
               </h2>
-              <Bot className="text-aurora-cyan" size={18} />
+              <Bot className="text-[#e7c989]" size={18} />
             </div>
-            <p className="text-sm leading-6 text-white/[0.62]">
-              Keep a quiet layer of context beside the page, ready when the thread needs clarity.
+            <p className="text-sm leading-6 text-[#f4ecdc]/[0.62]">
+              A quiet layer beside the page for summaries, decisions and next steps.
             </p>
             <div className="mt-5 grid gap-2">
-              <TeaserAction icon={<FileText size={15} />} label="Clarify the page" />
-              <TeaserAction icon={<ListTodo size={15} />} label="Hold the thread" />
-              <TeaserAction icon={<Zap size={15} />} label="Surface what matters" />
+              <TeaserAction icon={<FileText size={15} />} label="Understand this page" />
+              <TeaserAction icon={<ListTodo size={15} />} label="Summarize the thread" />
+              <TeaserAction icon={<Zap size={15} />} label="Find next steps" />
             </div>
-            <Button className="mt-5 w-full" tone="primary" onClick={onOpenAi}>
+            <Button
+              className="mt-5 w-full border-[#e7c989]/[0.35] bg-[#e7c989] text-[#120f0a] hover:bg-[#f4ecdc]"
+              tone="primary"
+              onClick={onOpenAi}
+            >
               Open Noema
             </Button>
           </section>
         </div>
 
-        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-white/[0.46]">
-            Recent Pages
+        <section className="rounded-[22px] border border-[#e7c989]/[0.10] bg-[#100d09]/[0.52] p-5">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-[#f4ecdc]/[0.42]">
+            Continue where you left off
           </h2>
           {recent.length > 0 ? (
             <div className="grid gap-2 md:grid-cols-2">
               {recent.map((entry) => (
                 <button
                   key={entry.id}
-                  className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-4 text-left transition hover:bg-white/[0.08]"
+                  className="rounded-2xl border border-[#e7c989]/[0.10] bg-[#f4ecdc]/[0.035] p-4 text-left transition hover:border-[#e7c989]/[0.20] hover:bg-[#f4ecdc]/[0.06]"
                   type="button"
                   onClick={() => onNavigate(entry.url)}
                 >
-                  <span className="block truncate text-sm font-medium text-white">
+                  <span className="block truncate text-sm font-medium text-[#f4ecdc]">
                     {entry.title}
                   </span>
-                  <span className="mt-1 block truncate text-xs text-white/[0.38]">
+                  <span className="mt-1 block truncate text-xs text-[#f4ecdc]/[0.38]">
                     {formatVisit(entry)} · {entry.url}
                   </span>
                 </button>
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-white/[0.12] px-4 py-8 text-center text-sm text-white/[0.42]">
+            <div className="rounded-2xl border border-dashed border-[#e7c989]/[0.14] px-4 py-8 text-center text-sm text-[#f4ecdc]/[0.42]">
               The thread of your recent work will appear here.
             </div>
           )}
@@ -133,8 +141,8 @@ export function StartPage({ history, onNavigate, onOpenAi }: StartPageProps) {
 
 function TeaserAction({ icon, label }: { icon: ReactNode; label: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.05] px-3 py-2 text-sm text-white/[0.68]">
-      <span className="text-aurora-cyan">{icon}</span>
+    <div className="flex items-center gap-3 rounded-xl border border-[#e7c989]/[0.10] bg-black/[0.15] px-3 py-2 text-sm text-[#f4ecdc]/[0.68]">
+      <span className="text-[#e7c989]">{icon}</span>
       {label}
     </div>
   );

@@ -15,8 +15,8 @@ body,
 body {
   margin: 0;
   overflow: hidden;
-  background: #05060a;
-  color: white;
+  background: #060504;
+  color: #f4ecdc;
   font-family:
     Inter,
     ui-sans-serif,
@@ -42,7 +42,7 @@ select {
   border: 3px solid transparent;
   border-radius: 999px;
   background-clip: content-box;
-  background-color: rgba(255, 255, 255, 0.16);
+  background-color: rgba(231, 201, 137, 0.18);
 }
 
 ::-webkit-scrollbar-track {

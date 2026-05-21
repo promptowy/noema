@@ -1,10 +1,10 @@
 import type { BrowserTab, HistoryEntry } from "../../electron/types";
 
 export const quickLinks = [
-  { title: "ChatGPT", url: "https://chatgpt.com", accent: "from-aurora-cyan to-aurora-blue" },
-  { title: "OpenAI", url: "https://openai.com", accent: "from-aurora-blue to-aurora-violet" },
-  { title: "GitHub", url: "https://github.com", accent: "from-white to-white/40" },
-  { title: "Vercel", url: "https://vercel.com", accent: "from-aurora-rose to-aurora-amber" }
+  { title: "ChatGPT", url: "https://chatgpt.com", accent: "from-[#f4ecdc] to-[#bfa56a]" },
+  { title: "OpenAI", url: "https://openai.com", accent: "from-[#e7c989] to-[#8b7650]" },
+  { title: "GitHub", url: "https://github.com", accent: "from-[#f4ecdc] to-[#5f584c]" },
+  { title: "Vercel", url: "https://vercel.com", accent: "from-[#c7a96a] to-[#6b332b]" }
 ];
 
 export function isInternalUrl(url: string) {

@@ -66,7 +66,7 @@ spawnChild(process.execPath, [viteCli, "build", "--config", "vite.electron.confi
 spawnChild(process.execPath, [viteCli, "--config", "vite.renderer.config.ts"]);
 
 await Promise.all([
-  waitForFile("dist-electron/main/main.js"),
+  waitForFile("dist-electron/main/main.cjs"),
   waitForUrl(devUrl)
 ]);
 

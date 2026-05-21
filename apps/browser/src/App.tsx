@@ -82,9 +82,9 @@ export default function App() {
 
   if (!state) {
     return (
-      <div className="grid h-screen place-items-center bg-radial-aura text-white">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-6 py-4 text-sm shadow-panel">
-          Starting Noema
+      <div className="grid h-screen place-items-center bg-[#060504] text-[#f4ecdc]">
+        <div className="rounded-2xl border border-[#e7c989]/[0.15] bg-[#15120d]/[0.80] px-6 py-4 text-sm shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
+          Opening Noema
         </div>
       </div>
     );
@@ -96,7 +96,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-radial-aura text-white">
+    <div className="flex h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_28%_-10%,rgba(231,201,137,0.13),transparent_34%),linear-gradient(135deg,#050403_0%,#0b0907_46%,#050504_100%)] text-[#f4ecdc]">
       <TitleBar />
       <div className="flex min-h-0 flex-1">
         <Sidebar
@@ -115,7 +115,7 @@ export default function App() {
           onViewModeChange={setViewMode}
         />
 
-        <main className="flex min-w-0 flex-1 flex-col bg-ink-900/[0.36]">
+        <main className="flex min-w-0 flex-1 flex-col bg-[#080706]/[0.55]">
           <TopBar
             activeTab={activeTab}
             aiOpen={aiOpen}
@@ -152,10 +152,11 @@ export default function App() {
               ) : null}
               {showWebContent ? (
                 <div className="h-full p-4">
-                  <div className="relative h-full rounded-2xl border border-white/10 bg-ink-950/[0.72] shadow-panel">
+                  <div className="relative h-full overflow-hidden rounded-[22px] border border-[#e7c989]/[0.12] bg-[#080706]/[0.85] shadow-[0_28px_100px_rgba(0,0,0,0.48)]">
+                    <div className="pointer-events-none absolute inset-0 rounded-[22px] shadow-[inset_0_1px_0_rgba(255,248,232,0.08)]" />
                     <div
                       ref={webSlotRef}
-                      className="absolute inset-px overflow-hidden rounded-[15px]"
+                      className="absolute inset-px overflow-hidden rounded-[21px]"
                     />
                   </div>
                 </div>
