@@ -649,7 +649,7 @@ function Download() {
               </SecondaryLink>
             </div>
             <div className="mt-5 grid gap-3 text-sm text-[#d8cbb3]/[0.60]" id="setup-notes">
-              <SetupNote label="1" text="Unzip Noema-Windows-MVP.zip." />
+              <SetupNote label="1" text="Unzip Noema-v0.1.0-Windows-MVP.zip." />
               <SetupNote label="2" text="Open the extracted folder." />
               <SetupNote label="3" text="Double-click Noema.exe from inside that folder." />
               <SetupNote label="4" text="If Windows warns you, choose More info, then Run anyway." />
