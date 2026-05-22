@@ -30,6 +30,9 @@ const navItems = [
   ["Download", "#download"]
 ];
 
+const windowsDownloadUrl =
+  "https://github.com/promptowy/noema/releases/download/v0.1.0-mvp/Noema-v0.1.0-Windows-MVP.zip";
+
 const productCards = [
   {
     icon: SquareStack,
@@ -225,7 +228,7 @@ function Navigation() {
         </div>
         <a
           className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#d8b56d]/[0.36] bg-[#d8b56d]/[0.13] px-3 text-xs font-semibold text-[#fff2d2] transition hover:border-[#d8b56d]/[0.62] hover:bg-[#d8b56d]/[0.20]"
-          href="#download"
+          href={windowsDownloadUrl}
         >
           Download MVP
           <ArrowDownToLine size={14} />
@@ -249,7 +252,7 @@ function Hero() {
             in tabs.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <PrimaryLink href="#download">
+            <PrimaryLink href={windowsDownloadUrl}>
               Download Windows MVP
               <ArrowDownToLine size={16} />
             </PrimaryLink>
@@ -636,7 +639,7 @@ function Download() {
           </div>
           <div className="rounded-2xl border border-[#ead7ad]/[0.12] bg-[#070604]/[0.72] p-4">
             <div className="grid gap-3 sm:grid-cols-2">
-              <PrimaryLink href="#setup-notes">
+              <PrimaryLink href={windowsDownloadUrl}>
                 Download Windows MVP
                 <MonitorDown size={16} />
               </PrimaryLink>

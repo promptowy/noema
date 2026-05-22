@@ -1,6 +1,10 @@
 # Noema Download Button Setup
 
-The landing page is ready for online deployment, but the Windows MVP ZIP is not currently hosted by the site. The visible download CTA points to the setup notes section until a public release asset URL exists.
+The landing page is ready for online deployment. The Windows MVP download CTAs currently point to the public GitHub Release asset:
+
+```text
+https://github.com/promptowy/noema/releases/download/v0.1.0-mvp/Noema-v0.1.0-Windows-MVP.zip
+```
 
 ## Recommended Release Flow
 
@@ -31,7 +35,7 @@ release-assets/Noema-v0.1.0-Windows-MVP.zip
 apps/landing/src/app/page.tsx
 ```
 
-Replace the temporary `#setup-notes` or `#download` CTA target with the public HTTPS ZIP URL.
+Replace the existing public HTTPS ZIP URL when shipping a new version.
 
 ## Important Rules
 
@@ -43,4 +47,4 @@ Replace the temporary `#setup-notes` or `#download` CTA target with the public H
 
 ## Current Public-Site Behavior
 
-Until a hosted ZIP exists, the landing page should explain how the MVP package works without pretending a public download is already connected.
+The landing page should always use an HTTPS release asset URL for public downloads and keep local setup notes visible for users who download the ZIP.
